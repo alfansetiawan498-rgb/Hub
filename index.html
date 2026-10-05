@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HubKita">
+<meta name="mobile-web-app-capable" content="yes">
+<title>HubKita — Komunikasi Tanpa Batas</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+    darkMode: 'class',
+    theme: {
+        extend: {
+            fontFamily: { sans: ['Inter','system-ui','sans-serif'] },
+            colors: {
+                ink: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' },
+                accent: { 50:'#eef2ff',100:'#e0e7ff',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca' },
+                coral: { 400:'#fb7185',500:'#f43f5e',600:'#e11d48' },
+                mint: { 400:'#34d399',500:'#10b981',600:'#059669' }
+            }
+        }
+    }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;height:100vh;height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;background:#f8fafc}
+.dark body{background:#020617}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.3);border-radius:999px}
+.glass{background:rgba(255,255,255,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.dark .glass{background:rgba(15,23,42,.85)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.animate-fade{animation:fadeIn .3s ease}
+.animate-slide{animation:slideUp .4s cubic-bezier(.16,1,.3,1)}
+.animate-scale{animation:scaleIn .15s ease}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.msg-text{word-wrap:break-word;white-space:pre-wrap}
+.hidden{display:none !important}
+input,textarea,select,button{font-family:inherit}
+*:focus-visible{outline:2px solid #6366f1;outline-offset:2px;border-radius:6px}
+.safe-top{padding-top:env(safe-area-inset-top)}
+.safe-bottom{padding-bottom:env(safe-area-inset-bottom)}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot" class="fixed inset-0 z-50 bg-ink-950 flex items-center justify-center">
+  <div class="text-center">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 flex items-center justify-center">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+    </div>
+    <div class="text-white font-bold text-xl">HubKita</div>
+    <div class="text-ink-400 text-xs mt-1">Memuat...</div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="auth" class="fixed inset-0 z-40 hidden overflow-y-auto bg-ink-950">
+  <div class="min-h-full flex items-center justify-center p-4 py-8">
+    <div class="w-full max-w-md animate-slide">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 mb-3">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white">HubKita</h1>
+        <p class="text-xs text-ink-400 mt-1">Komunikasi tanpa batas untuk tim modern</p>
+      </div>
+
+      <div class="glass !bg-white/5 border border-white/10 rounded-3xl p-6">
+        <div class="flex gap-1 mb-5 p-1 bg-white/5 rounded-xl">
+          <button id="tab-login" onclick="Auth.ui('login')" class="flex-1 py-2 rounded-lg text-xs font-semibold transition">Masuk</button>
+          <button id="tab-register" onclick="Auth.ui('register')" class="flex-1 py-2 rounded-lg text-xs font-semibold transition">Daftar</button>
+        </div>
+
+        <form id="form-login" onsubmit="Auth.login(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-ink-300 mb-1.5">Email</label>
+            <input type="email" id="login-email" value="budi@hubkita.com" required autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-accent-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-ink-300 mb-1.5">Password</label>
+            <input type="password" id="login-password" value="12345678" required autocomplete="current-password" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-accent-500">
+          </div>
+          <label class="flex items-center gap-2 text-xs text-ink-400 cursor-pointer">
+            <input type="checkbox" id="login-remember" checked class="rounded bg-white/5 border-white/10 text-accent-500 w-3.5 h-3.5">
+            <span>Ingat saya 30 hari</span>
+          </label>
+          <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-accent-500 to-accent-600 text-white font-semibold py-3 rounded-xl text-sm">
+            Masuk ke HubKita
+          </button>
+        </form>
+
+        <form id="form-register" onsubmit="Auth.register(event)" class="space-y-3 hidden">
+          <div>
+            <label class="block text-xs font-medium text-ink-300 mb-1.5">Nama Lengkap</label>
+            <input type="text" id="reg-name" required minlength="2" placeholder="Budi Santoso" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-ink-500 outline-none focus:border-accent-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-ink-300 mb-1.5">Email</label>
+            <input type="email" id="reg-email" required placeholder="nama@email.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-ink-500 outline-none focus:border-accent-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-ink-300 mb-1.5">Password</label>
+            <input type="password" id="reg-password" required minlength="6" placeholder="Min. 6 karakter" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-ink-500 outline-none focus:border-accent-500">
+          </div>
+          <button type="submit" id="btn-register" class="w-full bg-gradient-to-r from-accent-500 to-accent-600 text-white font-semibold py-3 rounded-xl text-sm">
+            Buat Akun
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-4 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-[11px] text-ink-400">
+          <span>Demo: <b class="text-white">budi@hubkita.com</b> / <b class="text-white">12345678</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden h-full flex flex-col">
+  <header class="shrink-0 glass border-b border-ink-200 dark:border-ink-800 z-30 safe-top">
+    <div class="flex items-center justify-between px-3 py-3 gap-2">
+      <div class="flex items-center gap-2">
+        <button onclick="App.drawer()" class="lg:hidden p-2 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-accent-500 to-accent-700 flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+          </div>
+          <div class="hidden sm:block">
+            <div class="text-sm font-bold">HubKita</div>
+            <div class="text-[10px] text-ink-500">v7.0 Universal</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <button onclick="App.install()" id="install-btn" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent-500 text-white text-[11px] font-semibold">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Install
+        </button>
+        <button onclick="App.theme()" class="p-2 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800">
+          <svg class="theme-sun hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="theme-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button onclick="Profile.toggle()" class="flex items-center gap-1 p-1 pr-2 rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800">
+          <img id="hdr-avatar" class="w-7 h-7 rounded-lg object-cover bg-ink-200" alt="">
+          <svg class="hidden sm:block" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex-1 flex overflow-hidden relative">
+    <div id="drawer-bg" onclick="App.drawer()" class="hidden lg:hidden fixed inset-0 bg-ink-950/60 z-30"></div>
+
+    <aside id="sidebar" class="fixed lg:relative z-40 w-64 h-full bg-white dark:bg-ink-900 border-r border-ink-200 dark:border-ink-800 flex flex-col shrink-0 -translate-x-full lg:translate-x-0 transition-transform duration-300">
+      <nav class="p-2 space-y-0.5">
+        <button data-nav="ann" onclick="App.tab('ann')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold">
+          <span class="flex items-center gap-3">
+            <span class="nav-icon w-7 h-7 rounded-lg flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            </span>
+            <span>Pengumuman</span>
+          </span>
+          <span id="badge-ann" class="hidden bg-accent-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">0</span>
+        </button>
+        <button data-nav="chat" onclick="App.tab('chat')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl text-xs font-semibold">
+          <span class="flex items-center gap-3">
+            <span class="nav-icon w-7 h-7 rounded-lg flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </span>
+            <span>Pesan</span>
+          </span>
+        </button>
+        <button data-nav="members" onclick="App.tab('members')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold">
+          <span class="flex items-center gap-3">
+            <span class="nav-icon w-7 h-7 rounded-lg flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <span>Anggota</span>
+          </span>
+          <span id="badge-members" class="text-[10px] px-1.5 py-0.5 rounded-md font-bold bg-ink-100 dark:bg-ink-800">0</span>
+        </button>
+      </nav>
+
+      <div class="mx-4 h-px bg-ink-200 dark:bg-ink-800"></div>
+
+      <div class="flex-1 overflow-y-auto p-2 space-y-4">
+        <div>
+          <div class="px-3 mb-1.5 flex items-center justify-between text-[10px] font-bold text-ink-400 uppercase tracking-wider">
+            <span>Saluran</span>
+            <button onclick="Chat.addChannel()" class="hover:text-accent-500">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div id="channels-list" class="space-y-0.5"></div>
+        </div>
+        <div>
+          <div class="px-3 mb-1.5 text-[10px] font-bold text-ink-400 uppercase tracking-wider">Pesan Langsung</div>
+          <div id="dm-list" class="space-y-0.5"></div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-ink-200 dark:border-ink-800 flex items-center justify-between text-[10px] text-ink-400">
+        <div class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-mint-500"></span>
+          <span>Online</span>
+        </div>
+        <span class="font-mono">v7.0</span>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <main id="tab-ann" class="flex-1 flex flex-col overflow-hidden">
+        <div class="shrink-0 p-4 border-b border-ink-200 dark:border-ink-800 glass">
+          <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between max-w-4xl mx-auto w-full">
+            <div>
+              <h1 class="text-lg sm:text-xl font-bold">Pengumuman</h1>
+              <p class="text-xs text-ink-500 mt-0.5">Pesan resmi dari tim</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex bg-ink-100 dark:bg-ink-800 p-0.5 rounded-xl text-[11px] font-semibold">
+                <button data-filter="all" onclick="Ann.filter('all')" class="filter-btn px-2.5 py-1.5 rounded-lg">Semua</button>
+                <button data-filter="unread" onclick="Ann.filter('unread')" class="filter-btn px-2.5 py-1.5 rounded-lg">Belum</button>
+                <button data-filter="urgent" onclick="Ann.filter('urgent')" class="filter-btn px-2.5 py-1.5 rounded-lg">Penting</button>
+              </div>
+              <button id="btn-new-ann" onclick="Ann.create()" class="hidden bg-accent-500 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Buat
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="ann-list" class="flex-1 overflow-y-auto p-4"></div>
+      </main>
+
+      <main id="tab-chat" class="flex-1 flex flex-col overflow-hidden hidden">
+        <div class="shrink-0 p-3 border-b border-ink-200 dark:border-ink-800 glass flex items-center justify-between">
+          <div class="flex items-center gap-3 min-w-0">
+            <div id="chat-icon" class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-accent-700 text-white flex items-center justify-center font-bold shrink-0">#</div>
+            <div class="min-w-0">
+              <div id="chat-title" class="font-bold text-sm truncate">—</div>
+              <div id="chat-subtitle" class="text-[11px] text-ink-500 truncate">—</div>
+            </div>
+          </div>
+        </div>
+        <div id="msg-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+        <input type="file" id="file-input" class="hidden" onchange="Chat.file(event)" accept="image/*,.pdf,.doc,.docx,.txt">
+        <div class="shrink-0 p-3 border-t border-ink-200 dark:border-ink-800 glass safe-bottom">
+          <form onsubmit="Chat.send(event)" class="flex items-end gap-2">
+            <button type="button" onclick="document.getElementById('file-input').click()" class="p-2.5 rounded-xl text-ink-500 hover:bg-ink-100 dark:hover:bg-ink-800">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <input id="chat-input" type="text" placeholder="Tulis pesan..." autocomplete="off" class="flex-1 bg-ink-100 dark:bg-ink-800 px-4 py-2.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-accent-500">
+            <button type="submit" class="bg-accent-500 text-white p-2.5 rounded-xl">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
+        </div>
+      </main>
+
+      <main id="tab-members" class="flex-1 flex flex-col overflow-hidden hidden">
+        <div class="shrink-0 p-4 border-b border-ink-200 dark:border-ink-800 glass">
+          <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between max-w-4xl mx-auto w-full">
+            <div>
+              <h1 class="text-lg sm:text-xl font-bold">Direktori</h1>
+              <p class="text-xs text-ink-500 mt-0.5"><span id="member-count">0</span> anggota</p>
+            </div>
+            <input id="search-members" oninput="Members.render()" placeholder="Cari anggota..." class="bg-ink-100 dark:bg-ink-800 text-xs px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-accent-500 w-full sm:w-64">
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4">
+          <div id="members-list" class="max-w-4xl mx-auto space-y-2"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Menu -->
+<div id="profile-menu" class="hidden fixed right-3 top-16 w-64 bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-scale">
+  <div class="p-3 bg-gradient-to-br from-accent-500/10 to-accent-700/5 border-b border-ink-200 dark:border-ink-800">
+    <div class="flex items-center gap-3">
+      <img id="menu-avatar" class="w-10 h-10 rounded-xl object-cover bg-ink-200" alt="">
+      <div class="overflow-hidden">
+        <div id="menu-name" class="font-semibold text-sm truncate">—</div>
+        <div id="menu-email" class="text-[11px] text-ink-500 truncate">—</div>
+      </div>
+    </div>
+  </div>
+  <div class="p-1.5">
+    <button onclick="Profile.edit();Profile.toggle()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-ink-100 dark:hover:bg-ink-800 text-left">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Edit Profil
+    </button>
+    <button onclick="App.install();Profile.toggle()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-ink-100 dark:hover:bg-ink-800 text-left">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Install sebagai App
+    </button>
+    <div class="h-px bg-ink-200 dark:bg-ink-800 my-1"></div>
+    <button onclick="Auth.logout();Profile.toggle()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-coral-500 hover:bg-coral-500/10 text-left">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Keluar
+    </button>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-container" class="fixed bottom-5 right-5 z-[90] space-y-2 pointer-events-none"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════
+// HUBKITA v7.0 UNIVERSAL
+// ═══════════════════════════════════════════════════
+
+const U = {
+  uuid: () => (crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(36).slice(2)),
+  esc: s => { const d=document.createElement('div'); d.textContent=s??''; return d.innerHTML; },
+  timeAgo(ts) {
+    const s = Math.floor((Date.now()-ts)/1000);
+    if(s<30) return 'Baru saja';
+    if(s<60) return s+'d lalu';
+    const m=Math.floor(s/60); if(m<60) return m+'m lalu';
+    const h=Math.floor(m/60); if(h<24) return h+'j lalu';
+    const d=Math.floor(h/24); if(d<7) return d+'h lalu';
+    return new Date(ts).toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+  },
+  time: (d=new Date()) => String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),
+  bytes(b){ if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(2)+' MB'; },
+  validEmail: e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
+  async hash(pw) {
+    if(crypto.subtle) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw+'hubkita_v7'));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    // Fallback untuk browser lama / non-HTTPS
+    let h = 0;
+    const s = pw+'hubkita_v7';
+    for(let i=0;i<s.length;i++){ h = ((h<<5)-h)+s.charCodeAt(i); h|=0; }
+    return 'fb_'+Math.abs(h).toString(16)+'_'+s.length;
+  },
+  verify: async (pw, hash) => (await U.hash(pw)) === hash
+};
+
+const DB = {
+  PREFIX: 'hubkita7_',
+  cache: {},
+  get(k, d=null) {
+    if(k in this.cache) return this.cache[k];
+    try {
+      const raw = localStorage.getItem(this.PREFIX+k);
+      const v = raw ? JSON.parse(raw) : d;
+      this.cache[k] = v;
+      return v;
+    } catch { return d; }
+  },
+  set(k, v) {
+    try {
+      this.cache[k] = v;
+      localStorage.setItem(this.PREFIX+k, JSON.stringify(v));
+      return true;
+    } catch(e) {
+      if(e.name==='QuotaExceededError') Toast.show('Penyimpanan penuh','error');
+      return false;
+    }
+  },
+  remove(k){ delete this.cache[k]; localStorage.removeItem(this.PREFIX+k); }
+};
+
+const State = { user:null, tab:'ann', filter:'all', activeChat:null };
+
+const Toast = {
+  show(msg, type='success', dur=3000) {
+    const map = {
+      success:{bg:'from-mint-500 to-mint-600',icon:'check-circle-2'},
+      error:{bg:'from-coral-500 to-coral-600',icon:'x-circle'},
+      info:{bg:'from-accent-500 to-accent-600',icon:'info'},
+      warning:{bg:'from-amber-500 to-amber-600',icon:'alert-triangle'}
+    };
+    const s = map[type]||map.info;
+    const el = document.createElement('div');
+    el.className = `bg-gradient-to-r ${s.bg} text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-start gap-2 transform translate-x-20 opacity-0 transition-all duration-300 pointer-events-auto max-w-xs`;
+    el.innerHTML = `<span class="font-medium flex-1">${U.esc(msg)}</span>`;
+    document.getElementById('toast-container').appendChild(el);
+    requestAnimationFrame(()=>el.classList.remove('translate-x-20','opacity-0'));
+    setTimeout(()=>{ el.classList.add('translate-x-20','opacity-0'); setTimeout(()=>el.remove(),300); }, dur);
+  }
+};
+
+const Modal = {
+  stack: [],
+  open(html, opts={}) {
+    const id = 'modal-'+U.uuid();
+    const wrap = document.createElement('div');
+    wrap.id = id;
+    wrap.className = 'fixed inset-0 bg-ink-950/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade';
+    wrap.innerHTML = html;
+    wrap.addEventListener('click', e => { if(e.target===wrap && opts.dismissible!==false) this.close(id); });
+    document.getElementById('modal-root').appendChild(wrap);
+    this.stack.push(id);
+    setTimeout(()=>{ const f=wrap.querySelector('[autofocus],input,button,textarea'); if(f) f.focus(); },50);
+    return id;
+  },
+  close(id) { const el=document.getElementById(id); if(el){ el.style.opacity='0'; setTimeout(()=>el.remove(),150); } this.stack=this.stack.filter(x=>x!==id); }
+};
+
+const Confirm = {
+  show(title, msg, onOk, okText='Lanjutkan', danger=true) {
+    const html = `<div class="bg-white dark:bg-ink-900 rounded-2xl shadow-2xl max-w-sm w-full animate-slide" onclick="event.stopPropagation()">
+      <div class="p-6 text-center">
+        <h3 class="font-bold text-base mb-1.5">${U.esc(title)}</h3>
+        <p class="text-xs text-ink-500 mb-6">${U.esc(msg)}</p>
+        <div class="flex gap-2">
+          <button data-c class="flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold bg-ink-100 dark:bg-ink-800">Batal</button>
+          <button data-o class="flex-1 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r ${danger?'from-coral-500 to-coral-600':'from-accent-500 to-accent-600'}">${U.esc(okText)}</button>
+        </div>
+      </div>
+    </div>`;
+    const id = Modal.open(html,{dismissible:false});
+    const el = document.getElementById(id);
+    el.querySelector('[data-c]').onclick = ()=>Modal.close(id);
+    el.querySelector('[data-o]').onclick = ()=>{ Modal.close(id); onOk&&onOk(); };
+  }
+};
+
+const Seed = {
+  async init() {
+    if(DB.get('seeded')) return;
+    const pw = await U.hash('12345678');
+    DB.set('users', [
+      { id:'u1', name:'Budi Santoso', email:'budi@hubkita.com', passwordHash:pw, role:'admin', avatar:'https://ui-avatars.com/api/?name=Budi+Santoso&background=6366f1&color=fff&size=128', bio:'Manager IT', status:'online', createdAt:Date.now(), lastSeen:Date.now() },
+      { id:'u2', name:'Siti Rahma', email:'siti@hubkita.com', passwordHash:pw, role:'staff', avatar:'https://ui-avatars.com/api/?name=Siti+Rahma&background=ec4899&color=fff&size=128', bio:'Staff Marketing', status:'online', createdAt:Date.now(), lastSeen:Date.now()-300000 },
+      { id:'u3', name:'Andi Wijaya', email:'andi@hubkita.com', passwordHash:pw, role:'member', avatar:'https://ui-avatars.com/api/?name=Andi+Wijaya&background=10b981&color=fff&size=128', bio:'Junior Developer', status:'offline', createdAt:Date.now(), lastSeen:Date.now()-3600000 }
+    ]);
+    DB.set('announcements', [
+      { id:'a1', title:'Selamat Datang di HubKita!', content:'Halo tim! Ini adalah platform komunikasi kita. Silakan jelajahi fitur-fitur yang tersedia.', priority:'urgent', authorId:'u1', authorName:'Budi Santoso', reads:['u2'], archived:false, createdAt:Date.now()-3600000 },
+      { id:'a2', title:'Jadwal Rapat Mingguan', content:'Rapat mingguan setiap Senin pukul 09:00 WIB di ruang meeting utama.', priority:'normal', authorId:'u1', authorName:'Budi Santoso', reads:[], archived:false, createdAt:Date.now()-7200000 }
+    ]);
+    DB.set('channels', [
+      { id:'c_general', name:'#umum', description:'Diskusi bebas', createdAt:Date.now() },
+      { id:'c_tech', name:'#teknologi', description:'Diskusi teknologi', createdAt:Date.now() }
+    ]);
+    DB.set('messages', {
+      'c_general': [ { id:'m1', senderId:'u1', senderName:'Budi Santoso', text:'Selamat datang semua! 🎉', time:'09:00', ts:Date.now()-3600000, status:'read', reactions:['👍'] } ]
+    });
+    DB.set('seeded', true);
+  }
+};
+
+const Sync = {
+  ch: null,
+  init() {
+    try {
+      if('BroadcastChannel' in window) {
+        this.ch = new BroadcastChannel('hubkita7_sync');
+        this.ch.onmessage = e => { if(e.data.type==='update'){ DB.cache={}; App.render(); } };
+      }
+    } catch(e){}
+  },
+  go(){ try { if(this.ch) this.ch.postMessage({type:'update'}); } catch(e){} }
+};
+
+const Auth = {
+  ui(t) {
+    const l=document.getElementById('tab-login'), r=document.getElementById('tab-register');
+    const fl=document.getElementById('form-login'), fr=document.getElementById('form-register');
+    if(t==='login'){
+      l.className='flex-1 py-2 rounded-lg text-xs font-semibold transition text-white bg-white/10';
+      r.className='flex-1 py-2 rounded-lg text-xs font-semibold transition text-ink-400';
+      fl.classList.remove('hidden'); fr.classList.add('hidden');
+    } else {
+      r.className='flex-1 py-2 rounded-lg text-xs font-semibold transition text-white bg-white/10';
+      l.className='flex-1 py-2 rounded-lg text-xs font-semibold transition text-ink-400';
+      fr.classList.remove('hidden'); fl.classList.add('hidden');
+    }
+  },
+  async login(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const pw = document.getElementById('login-password').value;
+    const remember = document.getElementById('login-remember').checked;
+    const btn = document.getElementById('btn-login');
+
+    if(!U.validEmail(email)){ Toast.show('Email tidak valid','error'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>';
+    await new Promise(r=>setTimeout(r,300));
+
+    const users = DB.get('users',[]);
+    const user = users.find(u=>u.email.toLowerCase()===email);
+    if(!user){ btn.disabled=false; btn.textContent='Masuk ke HubKita'; Toast.show('Email tidak terdaftar','error'); return; }
+    if(!(await U.verify(pw, user.passwordHash))){ btn.disabled=false; btn.textContent='Masuk ke HubKita'; Toast.show('Password salah','error'); return; }
+
+    user.status='online'; user.lastSeen=Date.now();
+    DB.set('users', users);
+
+    const session = { userId:user.id, ts:Date.now(), remember };
+    if(remember) DB.set('session', session);
+    else sessionStorage.setItem('hubkita7_session', JSON.stringify(session));
+
+    State.user = user;
+    Toast.show(`Selamat datang, ${user.name.split(' ')[0]}! 👋`,'success');
+    this.enter();
+  },
+  async register(e) {
+    e.preventDefault();
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim().toLowerCase();
+    const pw = document.getElementById('reg-password').value;
+    const btn = document.getElementById('btn-register');
+
+    if(name.length<2){ Toast.show('Nama minimal 2 karakter','error'); return; }
+    if(!U.validEmail(email)){ Toast.show('Email tidak valid','error'); return; }
+    if(pw.length<6){ Toast.show('Password minimal 6 karakter','error'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>';
+    await new Promise(r=>setTimeout(r,400));
+
+    const users = DB.get('users',[]);
+    if(users.some(u=>u.email.toLowerCase()===email)){
+      btn.disabled=false; btn.textContent='Buat Akun';
+      Toast.show('Email sudah terdaftar','error'); return;
+    }
+
+    const passwordHash = await U.hash(pw);
+    const newUser = {
+      id:'u'+U.uuid(),
+      name, email, passwordHash,
+      role:'member',
+      avatar:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&size=128`,
+      bio:'Anggota baru',
+      status:'online',
+      createdAt:Date.now(),
+      lastSeen:Date.now()
+    };
+    users.push(newUser);
+    DB.set('users', users);
+
+    sessionStorage.setItem('hubkita7_session', JSON.stringify({userId:newUser.id,ts:Date.now()}));
+    State.user = newUser;
+    Toast.show('Akun berhasil dibuat! 🎉','success');
+    this.enter();
+  },
+  enter() {
+    document.getElementById('auth').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('app').classList.add('flex');
+    App.render();
+  },
+  logout() {
+    Confirm.show('Keluar dari HubKita?','Anda akan keluar dari sesi ini.', ()=>{
+      const users = DB.get('users',[]);
+      const me = users.find(u=>u.id===State.user?.id);
+      if(me){ me.status='offline'; me.lastSeen=Date.now(); DB.set('users',users); }
+      sessionStorage.removeItem('hubkita7_session');
+      DB.remove('session');
+      State.user=null;
+      document.getElementById('auth').classList.remove('hidden');
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('app').classList.remove('flex');
+      Toast.show('Sampai jumpa! 👋','info');
+    },'Keluar');
+  },
+  restore() {
+    let s=null;
+    try { s = JSON.parse(sessionStorage.getItem('hubkita7_session')); } catch(e){}
+    if(!s) s = DB.get('session');
+    if(!s) return false;
+    const users = DB.get('users',[]);
+    const u = users.find(x=>x.id===s.userId);
+    if(!u) return false;
+    const maxAge = s.remember ? 30*86400000 : 86400000;
+    if(Date.now()-s.ts > maxAge){ sessionStorage.removeItem('hubkita7_session'); DB.remove('session'); return false; }
+    u.status='online'; u.lastSeen=Date.now();
+    DB.set('users',users);
+    State.user = u;
+    return true;
+  }
+};
+
+const App = {
+  deferredPrompt: null,
+  render() {
+    if(!State.user) return;
+    this.renderProfile();
+    Ann.render();
+    Chat.renderSidebar();
+    Members.render();
+    this.renderNav();
+  },
+  renderProfile() {
+    const u = State.user;
+    document.getElementById('hdr-avatar').src = u.avatar;
+    document.getElementById('menu-avatar').src = u.avatar;
+    document.getElementById('menu-name').textContent = u.name;
+    document.getElementById('menu-email').textContent = u.email;
+    const canCreate = ['admin','staff'].includes(u.role);
+    document.getElementById('btn-new-ann').style.display = canCreate ? 'flex' : 'none';
+  },
+  renderNav() {
+    document.querySelectorAll('.nav-btn').forEach(btn=>{
+      const act = btn.dataset.nav === State.tab;
+      btn.className = `nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition ${act?'bg-accent-50 dark:bg-accent-500/10 text-accent-700 dark:text-accent-300':'text-ink-600 dark:text-ink-400'}`;
+      const ic = btn.querySelector('.nav-icon');
+      if(ic) ic.className = `nav-icon w-7 h-7 rounded-lg flex items-center justify-center ${act?'bg-accent-500 text-white':'bg-ink-100 dark:bg-ink-800'}`;
+    });
+  },
+  tab(t) {
+    State.tab = t;
+    document.getElementById('tab-ann').classList.toggle('hidden', t!=='ann');
+    document.getElementById('tab-chat').classList.toggle('hidden', t!=='chat');
+    document.getElementById('tab-members').classList.toggle('hidden', t!=='members');
+    this.renderNav();
+    if(window.innerWidth<1024) this.closeDrawer();
+  },
+  drawer() {
+    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    document.getElementById('drawer-bg').classList.toggle('hidden');
+  },
+  closeDrawer() {
+    document.getElementById('sidebar').classList.add('-translate-x-full');
+    document.getElementById('drawer-bg').classList.add('hidden');
+  },
+  theme() {
+    const h = document.documentElement;
+    h.classList.toggle('dark');
+    DB.set('theme', h.classList.contains('dark')?'dark':'light');
+    this.updateThemeIcons();
+  },
+  updateThemeIcons() {
+    const isDark = document.documentElement.classList.contains('dark');
+    document.querySelectorAll('.theme-sun').forEach(el=>el.classList.toggle('hidden',!isDark));
+    document.querySelectorAll('.theme-moon').forEach(el=>el.classList.toggle('hidden',isDark));
+  },
+  initTheme() {
+    const t = DB.get('theme') || 'light';
+    document.documentElement.classList.remove('light','dark');
+    document.documentElement.classList.add(t);
+    this.updateThemeIcons();
+  },
+  install() {
+    if(this.deferredPrompt) {
+      this.deferredPrompt.prompt();
+      this.deferredPrompt.userChoice.then(choice=>{
+        if(choice.outcome==='accepted') Toast.show('HubKita di-install! 🎉','success');
+        this.deferredPrompt = null;
+      });
+    } else {
+      Toast.show('Buka menu browser → "Add to Home Screen" untuk install','info',4000);
+    }
+  }
+};
+
+const Ann = {
+  filter(f) {
+    State.filter = f;
+    document.querySelectorAll('.filter-btn').forEach(b=>{
+      const act = b.dataset.filter === f;
+      b.className = act
+        ? 'filter-btn px-2.5 py-1.5 rounded-lg transition bg-white dark:bg-ink-700 text-accent-600 dark:text-accent-400'
+        : 'filter-btn px-2.5 py-1.5 rounded-lg transition';
+    });
+    this.render();
+  },
+  render() {
+    const c = document.getElementById('ann-list');
+    const u = State.user;
+    if(!u) return;
+    let list = DB.get('announcements',[]).filter(a=>!a.archived);
+    if(State.filter==='unread') list = list.filter(a=>!a.reads.includes(u.id));
+    else if(State.filter==='urgent') list = list.filter(a=>a.priority==='urgent');
+
+    const unread = DB.get('announcements',[]).filter(a=>!a.archived && !a.reads.includes(u.id)).length;
+    const badge = document.getElementById('badge-ann');
+    if(unread>0){ badge.textContent = unread; badge.classList.remove('hidden'); }
+    else badge.classList.add('hidden');
+
+    if(!list.length){
+      c.innerHTML = `<div class="text-center py-16 bg-white dark:bg-ink-900 rounded-2xl border border-dashed border-ink-200 dark:border-ink-800 max-w-4xl mx-auto">
+        <p class="text-sm font-semibold">Belum ada pengumuman</p>
+        <p class="text-xs text-ink-500 mt-1">Semua sudah dibaca atau belum ada yang baru.</p>
+      </div>`;
+      return;
+    }
+
+    list.sort((a,b)=>(b.priority==='urgent'?1:0)-(a.priority==='urgent'?1:0) || b.createdAt-a.createdAt);
+    const users = DB.get('users',[]);
+
+    c.innerHTML = `<div class="max-w-4xl mx-auto space-y-3">` + list.map(a=>{
+      const isRead = a.reads.includes(u.id);
+      const author = users.find(x=>x.id===a.authorId);
+      const av = author?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(a.authorName)}`;
+      const urgent = a.priority==='urgent';
+      return `<article class="relative bg-white dark:bg-ink-900 rounded-2xl border ${urgent?'border-coral-200 dark:border-coral-500/40':'border-ink-200 dark:border-ink-800'} p-4 overflow-hidden">
+        ${urgent?`<div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-coral-400 to-coral-600"></div>`:''}
+        <div class="flex items-start gap-3">
+          <img src="${U.esc(av)}" class="w-10 h-10 rounded-xl object-cover shrink-0 bg-ink-100" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(a.authorName)}'">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="text-[11px] text-ink-500">${U.timeAgo(a.createdAt)}</span>
+              ${urgent?`<span class="text-[10px] font-bold text-coral-500 bg-coral-500/10 px-2 py-0.5 rounded-md">PENTING</span>`:''}
+            </div>
+            <h3 class="font-bold text-sm mb-1.5">${U.esc(a.title)}</h3>
+            <p class="text-xs text-ink-600 dark:text-ink-400 leading-relaxed mb-3 whitespace-pre-wrap">${U.esc(a.content)}</p>
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="text-[11px] text-ink-500">
+                <b class="text-ink-700 dark:text-ink-300">${U.esc(a.authorName)}</b> • ${a.reads.length} dibaca
+              </div>
+              ${isRead
+                ? `<span class="text-[11px] font-semibold text-mint-600 bg-mint-500/10 px-2.5 py-1 rounded-lg">✓ Dibaca</span>`
+                : `<button onclick="Ann.markRead('${a.id}')" class="text-[11px] font-bold text-white bg-accent-500 px-3 py-1.5 rounded-lg">Tandai Dibaca</button>`}
+            </div>
+          </div>
+        </div>
+      </article>`;
+    }).join('') + `</div>`;
+  },
+  markRead(id) {
+    const list = DB.get('announcements',[]);
+    const a = list.find(x=>x.id===id);
+    if(a && !a.reads.includes(State.user.id)){
+      a.reads.push(State.user.id);
+      DB.set('announcements',list);
+      Sync.go();
+      this.render();
+      Toast.show('Ditandai dibaca ✓','success',1500);
+    }
+  },
+  create() {
+    const html = `<div class="bg-white dark:bg-ink-900 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden animate-slide" onclick="event.stopPropagation()">
+      <div class="p-4 border-b border-ink-200 dark:border-ink-800 flex justify-between items-center">
+        <h3 class="font-bold text-sm">Buat Pengumuman</h3>
+        <button data-c class="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800">✕</button>
+      </div>
+      <form id="ann-form" class="p-5 space-y-3.5 overflow-y-auto">
+        <div>
+          <label class="block text-xs font-semibold mb-1.5">Judul *</label>
+          <input type="text" id="ann-title" required minlength="3" maxlength="150" placeholder="Judul pengumuman" class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-accent-500" autofocus>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1.5">Isi *</label>
+          <textarea id="ann-content" required minlength="5" rows="6" placeholder="Tulis isi..." class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-accent-500 resize-none"></textarea>
+        </div>
+        <label class="flex items-center gap-2.5 p-3 bg-coral-500/10 border border-coral-500/30 rounded-xl cursor-pointer">
+          <input type="checkbox" id="ann-urgent" class="rounded text-coral-500 w-4 h-4">
+          <div class="text-xs font-bold text-coral-600 dark:text-coral-400">Tandai Penting</div>
+        </label>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" data-c class="px-4 py-2 rounded-xl text-xs font-semibold hover:bg-ink-100 dark:hover:bg-ink-800">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-accent-500 text-white rounded-xl text-xs font-bold">Sebarkan</button>
+        </div>
+      </form>
+    </div>`;
+    const id = Modal.open(html);
+    const wrap = document.getElementById(id);
+    wrap.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>Modal.close(id));
+    document.getElementById('ann-form').addEventListener('submit', e=>{
+      e.preventDefault();
+      const title = document.getElementById('ann-title').value.trim();
+      const content = document.getElementById('ann-content').value.trim();
+      const urgent = document.getElementById('ann-urgent').checked;
+      const list = DB.get('announcements',[]);
+      list.unshift({
+        id:'a'+U.uuid(), title, content,
+        priority: urgent?'urgent':'normal',
+        authorId:State.user.id, authorName:State.user.name,
+        reads:[State.user.id], archived:false, createdAt:Date.now()
+      });
+      DB.set('announcements',list);
+      Sync.go();
+      Modal.close(id);
+      this.render();
+      Toast.show('Pengumuman disebarkan! 📢','success');
+    });
+  }
+};
+
+const Chat = {
+  rateLimit: [],
+  renderSidebar() {
+    const cc = document.getElementById('channels-list');
+    const cd = document.getElementById('dm-list');
+    const channels = DB.get('channels',[]);
+    const users = DB.get('users',[]);
+
+    cc.innerHTML = channels.map(c=>`
+      <button onclick="Chat.select('${c.id}')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition ${State.activeChat===c.id?'bg-accent-50 dark:bg-accent-500/10 text-accent-700 dark:text-accent-300':'text-ink-600 dark:text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-800'}">
+        <span>#</span><span class="truncate">${U.esc(c.name.replace('#',''))}</span>
+      </button>
+    `).join('') || '<div class="text-[11px] text-ink-400 text-center py-3">Belum ada saluran</div>';
+
+    cd.innerHTML = users.filter(u=>u.id!==State.user?.id).map(u=>`
+      <button onclick="Chat.select('dm_${u.id}')" class="w-full text-left px-2 py-1.5 rounded-lg text-xs flex items-center gap-2 transition ${State.activeChat==='dm_'+u.id?'bg-accent-50 dark:bg-accent-500/10 text-accent-700 dark:text-accent-300':'text-ink-600 dark:text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-800'}">
+        <div class="relative shrink-0">
+          <img src="${U.esc(u.avatar)}" class="w-6 h-6 rounded-md object-cover bg-ink-200" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}'">
+          <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-ink-900 ${u.status==='online'?'bg-mint-500':'bg-ink-400'}"></span>
+        </div>
+        <span class="truncate flex-1">${U.esc(u.name)}</span>
+      </button>
+    `).join('');
+  },
+  select(id) {
+    State.activeChat = id;
+    App.tab('chat');
+    this.renderSidebar();
+    this.renderHeader();
+    this.renderMessages();
+    if(window.innerWidth<1024) App.closeDrawer();
+  },
+  renderHeader() {
+    const ch = DB.get('channels',[]).find(c=>c.id===State.activeChat);
+    if(ch){
+      document.getElementById('chat-icon').textContent = '#';
+      document.getElementById('chat-title').textContent = ch.name;
+      document.getElementById('chat-subtitle').textContent = ch.description || '';
+    } else if(State.activeChat?.startsWith('dm_')){
+      const uid = State.activeChat.replace('dm_','');
+      const u = DB.get('users',[]).find(x=>x.id===uid);
+      if(u){
+        document.getElementById('chat-icon').textContent = u.name.charAt(0).toUpperCase();
+        document.getElementById('chat-title').textContent = u.name;
+        document.getElementById('chat-subtitle').textContent = u.bio || '';
+      }
+    }
+  },
+  renderMessages() {
+    const c = document.getElementById('msg-list');
+    const u = State.user;
+    if(!u) return;
+    const all = DB.get('messages',{});
+    const list = all[State.activeChat] || [];
+
+    if(!list.length){
+      c.innerHTML = `<div class="text-center py-16">
+        <p class="text-sm font-semibold">Belum ada pesan</p>
+        <p class="text-xs text-ink-500 mt-1">Mulai percakapan!</p>
+      </div>`;
+      return;
+    }
+
+    const users = DB.get('users',[]);
+    c.innerHTML = list.map(m=>{
+      const isMe = m.senderId === u.id;
+      const sender = users.find(x=>x.id===m.senderId);
+      const av = sender?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.senderName)}`;
+      const reactions = m.reactions && m.reactions.length
+        ? Object.entries(m.reactions.reduce((a,r)=>{a[r]=(a[r]||0)+1;return a;},{})).map(([e,n])=>`<span class="text-[11px] bg-white dark:bg-ink-800 border border-ink-200 dark:border-ink-700 px-1.5 py-0.5 rounded-full">${e}${n>1?' '+n:''}</span>`).join('')
+        : '';
+      const fileH = m.file ? `<div class="mt-2 p-2 ${isMe?'bg-black/15':'bg-ink-100 dark:bg-ink-700/50'} rounded-xl flex items-center gap-2 text-xs">
+        ${m.file.data?.startsWith('data:image')?`<img src="${m.file.data}" class="w-12 h-12 rounded-lg object-cover">`:'📄'}
+        <div class="flex-1 min-w-0">
+          <div class="truncate font-semibold">${U.esc(m.file.name)}</div>
+        </div>
+      </div>` : '';
+      if(isMe){
+        return `<div class="group flex justify-end animate-fade">
+          <div class="relative max-w-[80%] flex flex-col items-end">
+            <div class="hidden group-hover:flex items-center gap-0.5 bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 shadow-lg rounded-full px-1 py-0.5 absolute -top-3 right-2 z-10">
+              ${['👍','❤️','🎉','😂'].map(e=>`<button onclick="Chat.react('${m.id}','${e}')" class="hover:scale-125 transition text-sm w-6 h-6 rounded-full">${e}</button>`).join('')}
+            </div>
+            <div class="msg-text px-4 py-2.5 rounded-2xl rounded-br-md bg-gradient-to-br from-accent-500 to-accent-600 text-white text-sm">
+              ${U.esc(m.text)}${fileH}
+            </div>
+            <div class="flex items-center gap-1.5 mt-1 px-1">
+              ${reactions}
+              <span class="text-[10px] text-ink-400">${U.esc(m.time)}</span>
+            </div>
+          </div>
+        </div>`;
+      }
+      return `<div class="group flex items-end gap-2 animate-fade">
+        <img src="${U.esc(av)}" class="w-7 h-7 rounded-lg object-cover shrink-0 mb-5 bg-ink-200" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.senderName)}'">
+        <div class="relative max-w-[80%] flex flex-col">
+          <div class="text-[10px] text-ink-500 mb-1 px-1 font-medium">${U.esc(m.senderName)} • ${U.esc(m.time)}</div>
+          <div class="hidden group-hover:flex items-center gap-0.5 bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 shadow-lg rounded-full px-1 py-0.5 absolute -top-3 left-8 z-10">
+            ${['👍','❤️','🎉','😂'].map(e=>`<button onclick="Chat.react('${m.id}','${e}')" class="hover:scale-125 transition text-sm w-6 h-6 rounded-full">${e}</button>`).join('')}
+          </div>
+          <div class="msg-text px-4 py-2.5 rounded-2xl rounded-bl-md bg-white dark:bg-ink-800 border border-ink-200 dark:border-ink-800 text-sm">
+            ${U.esc(m.text)}${fileH}
+          </div>
+          ${reactions?`<div class="flex gap-1 mt-1 px-1">${reactions}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    c.scrollTop = c.scrollHeight;
+  },
+  react(id, emoji) {
+    const all = DB.get('messages',{});
+    const list = all[State.activeChat] || [];
+    const m = list.find(x=>x.id===id);
+    if(!m) return;
+    if(!m.reactions) m.reactions = [];
+    const i = m.reactions.indexOf(emoji);
+    if(i>=0) m.reactions.splice(i,1);
+    else m.reactions.push(emoji);
+    DB.set('messages',all);
+    Sync.go();
+    this.renderMessages();
+  },
+  file(e) {
+    const f = e.target.files[0];
+    if(!f) return;
+    if(f.size > 5*1024*1024){ Toast.show('File max 5MB','error'); e.target.value=''; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const all = DB.get('messages',{});
+      if(!all[State.activeChat]) all[State.activeChat] = [];
+      all[State.activeChat].push({
+        id:'m'+U.uuid(),
+        senderId:State.user.id, senderName:State.user.name,
+        text:'📎 Mengirim berkas:',
+        file:{name:f.name, size:f.size, type:f.type, data:reader.result},
+        time:U.time(), ts:Date.now(), status:'sent', reactions:[]
+      });
+      DB.set('messages',all);
+      Sync.go();
+      this.renderMessages();
+      Toast.show('Berkas terkirim','success',1500);
+      e.target.value='';
+    };
+    reader.readAsDataURL(f);
+  },
+  send(e) {
+    e.preventDefault();
+    const inp = document.getElementById('chat-input');
+    const text = inp.value.trim();
+    if(!text) return;
+    if(text.length>2000){ Toast.show('Pesan terlalu panjang','error'); return; }
+    const now = Date.now();
+    this.rateLimit = this.rateLimit.filter(t=>now-t<60000);
+    if(this.rateLimit.length>=20){ Toast.show('Terlalu cepat!','warning'); return; }
+    this.rateLimit.push(now);
+
+    const time = U.time();
+    const all = DB.get('messages',{});
+    if(!all[State.activeChat]) all[State.activeChat] = [];
+
+    const msg = { id:'m'+U.uuid(), senderId:State.user.id, senderName:State.user.name, text, time, ts:Date.now(), status:'sent', reactions:[] };
+    all[State.activeChat].push(msg);
+    DB.set('messages',all);
+    inp.value='';
+    this.renderMessages();
+    Sync.go();
+
+    let responder = 'Anggota Tim';
+    if(State.activeChat.startsWith('dm_')){
+      const u = DB.get('users',[]).find(x=>x.id===State.activeChat.replace('dm_',''));
+      if(u) responder = u.name;
+    }
+
+    setTimeout(()=>{
+      const list = all[State.activeChat];
+      const orig = list.find(x=>x.id===msg.id);
+      if(orig) orig.status='read';
+      const replies = ['Siap 👍','Terima kasih!','Baik, saya cek dulu.','Noted!','Ok, diproses ya.'];
+      list.push({
+        id:'m'+U.uuid(), senderId:'bot', senderName:responder,
+        text:replies[Math.floor(Math.random()*replies.length)],
+        time, ts:Date.now(), status:'read', reactions:[]
+      });
+      DB.set('messages',all);
+      this.renderMessages();
+      Sync.go();
+    }, 1500);
+  },
+  addChannel() {
+    const html = `<div class="bg-white dark:bg-ink-900 rounded-2xl shadow-2xl max-w-sm w-full animate-slide" onclick="event.stopPropagation()">
+      <div class="p-4 border-b border-ink-200 dark:border-ink-800 flex justify-between items-center">
+        <h3 class="font-bold text-sm">Saluran Baru</h3>
+        <button data-c class="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800">✕</button>
+      </div>
+      <form id="ch-form" class="p-4 space-y-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1.5">Nama Saluran</label>
+          <div class="flex items-center bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3">
+            <span class="text-ink-400 text-sm">#</span>
+            <input type="text" id="ch-name" required minlength="2" maxlength="30" placeholder="nama-saluran" class="flex-1 bg-transparent px-2 py-2.5 text-xs outline-none" autofocus>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1.5">Deskripsi</label>
+          <input type="text" id="ch-desc" maxlength="100" placeholder="Tentang saluran..." class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-accent-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-c class="px-4 py-2 rounded-xl text-xs font-semibold hover:bg-ink-100 dark:hover:bg-ink-800">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-accent-500 text-white rounded-xl text-xs font-bold">Buat</button>
+        </div>
+      </form>
+    </div>`;
+    const id = Modal.open(html);
+    const wrap = document.getElementById(id);
+    wrap.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>Modal.close(id));
+    document.getElementById('ch-form').addEventListener('submit', e=>{
+      e.preventDefault();
+      const name = document.getElementById('ch-name').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
+      if(!name){ Toast.show('Nama tidak valid','error'); return; }
+      const desc = document.getElementById('ch-desc').value.trim() || 'Saluran baru';
+      const channels = DB.get('channels',[]);
+      if(channels.some(c=>c.name==='#'+name)){ Toast.show('Saluran sudah ada','error'); return; }
+      channels.push({ id:'c_'+U.uuid(), name:'#'+name, description:desc, createdAt:Date.now() });
+      DB.set('channels',channels);
+      Sync.go();
+      Modal.close(id);
+      this.renderSidebar();
+      Toast.show(`Saluran #${name} dibuat! 🎉`,'success');
+    });
+  }
+};
+
+const Members = {
+  render() {
+    const c = document.getElementById('members-list');
+    const q = (document.getElementById('search-members')?.value || '').toLowerCase();
+    const users = DB.get('users',[]);
+    let list = users.filter(u=>u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q));
+    document.getElementById('badge-members').textContent = users.length;
+    document.getElementById('member-count').textContent = users.length;
+
+    if(!list.length){
+      c.innerHTML = `<div class="text-center py-12 text-xs text-ink-500">Tidak ada anggota</div>`;
+      return;
+    }
+
+    c.innerHTML = list.map(u=>`
+      <div class="bg-white dark:bg-ink-900 rounded-xl border border-ink-200 dark:border-ink-800 p-3 flex items-center gap-3">
+        <div class="relative shrink-0">
+          <img src="${U.esc(u.avatar)}" class="w-11 h-11 rounded-xl object-cover bg-ink-200" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}'">
+          <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-ink-900 ${u.status==='online'?'bg-mint-500':'bg-ink-400'}"></span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-sm truncate">${U.esc(u.name)}</div>
+          <div class="text-[11px] text-ink-500 truncate">${U.esc(u.bio||u.email)}</div>
+          <div class="flex items-center gap-1.5 mt-1">
+            <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${u.role==='admin'?'bg-coral-500/10 text-coral-600':u.role==='staff'?'bg-accent-500/10 text-accent-600':'bg-mint-500/10 text-mint-600'}">${U.esc(u.role)}</span>
+          </div>
+        </div>
+        ${u.id!==State.user?.id?`<button onclick="Chat.select('dm_${u.id}')" class="p-2 rounded-lg bg-accent-500/10 text-accent-500">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </button>`:''}
+      </div>
+    `).join('');
+  }
+};
+
+const Profile = {
+  toggle(){ document.getElementById('profile-menu').classList.toggle('hidden'); },
+  edit() {
+    const u = State.user;
+    const html = `<div class="bg-white dark:bg-ink-900 rounded-2xl shadow-2xl max-w-md w-full animate-slide" onclick="event.stopPropagation()">
+      <div class="p-4 border-b border-ink-200 dark:border-ink-800 flex justify-between items-center">
+        <h3 class="font-bold text-sm">Edit Profil</h3>
+        <button data-c class="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800">✕</button>
+      </div>
+      <form id="prof-form" class="p-5 space-y-3.5">
+        <div class="flex justify-center">
+          <img id="prof-prev" src="${U.esc(u.avatar)}" class="w-20 h-20 rounded-2xl object-cover bg-ink-200">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1.5">Nama</label>
+          <input type="text" id="prof-name" required value="${U.esc(u.name)}" class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-accent-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1.5">Bio</label>
+          <input type="text" id="prof-bio" value="${U.esc(u.bio||'')}" class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-accent-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1.5">Avatar URL</label>
+          <input type="url" id="prof-av" required value="${U.esc(u.avatar)}" class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-accent-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-c class="px-4 py-2 rounded-xl text-xs font-semibold hover:bg-ink-100 dark:hover:bg-ink-800">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-accent-500 text-white rounded-xl text-xs font-bold">Simpan</button>
+        </div>
+      </form>
+    </div>`;
+    const id = Modal.open(html);
+    const wrap = document.getElementById(id);
+    wrap.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>Modal.close(id));
+    document.getElementById('prof-av').addEventListener('input', e=>{
+      document.getElementById('prof-prev').src = e.target.value;
+    });
+    document.getElementById('prof-form').addEventListener('submit', e=>{
+      e.preventDefault();
+      const users = DB.get('users',[]);
+      const user = users.find(x=>x.id===State.user.id);
+      user.name = document.getElementById('prof-name').value.trim();
+      user.bio = document.getElementById('prof-bio').value.trim();
+      user.avatar = document.getElementById('prof-av').value.trim();
+      DB.set('users',users);
+      State.user = user;
+      Sync.go();
+      Modal.close(id);
+      App.render();
+      Toast.show('Profil diperbarui! ✨','success');
+    });
+  }
+};
+
+// Close menus on outside click
+document.addEventListener('click', e=>{
+  const pm = document.getElementById('profile-menu');
+  if(pm && !pm.classList.contains('hidden') && !e.target.closest('#profile-menu') && !e.target.closest('[onclick*="Profile.toggle"]')) pm.classList.add('hidden');
+});
+
+// Boot
+async function boot() {
+  App.initTheme();
+  await Seed.init();
+  Sync.init();
+
+  await new Promise(r=>setTimeout(r,300));
+
+  if(Auth.restore()) {
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('app').classList.add('flex');
+    App.render();
+  } else {
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('auth').classList.remove('hidden');
+  }
+
+  // PWA install prompt
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault();
+    App.deferredPrompt = e;
+    document.getElementById('install-btn').classList.remove('hidden');
+  });
+
+  window.addEventListener('appinstalled', ()=>{
+    Toast.show('HubKita di-install! Buka dari home screen 🎉','success',4000);
+  });
+
+  // Save on unload
+  window.addEventListener('beforeunload', ()=>{
+    if(State.user){
+      const users = DB.get('users',[]);
+      const me = users.find(u=>u.id===State.user.id);
+      if(me){ me.status='offline'; me.lastSeen=Date.now(); DB.set('users',users); }
+    }
+  });
+
+  console.log('%c🎉 HubKita v7.0 Universal','background:#6366f1;color:white;padding:6px 12px;border-radius:6px;font-weight:bold;font-size:14px');
+  console.log('%cJalan di Android, iOS, Windows, Mac, Linux ✓','color:#10b981;font-style:italic');
+}
+
+boot();
+</script>
+</body>
+</html>
