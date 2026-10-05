@@ -2,340 +2,419 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#075e54">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HubKita">
 <title>HubKita</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-html,body{height:100%;overflow:hidden;background:#0b141a;color:#e9edef}
-button,input,textarea{font-family:inherit;font-size:inherit;color:inherit;outline:none;border:none;background:none;cursor:pointer}
+/* ═══ RESET ═══ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#0b141a;color:#e9edef;font-size:15px;line-height:1.4}
+button,input,textarea{font-family:inherit;font-size:inherit;color:inherit;outline:none;border:none;background:none}
+button{cursor:pointer}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
 .hide{display:none!important}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:99px}
+input,textarea{-webkit-appearance:none;appearance:none;border-radius:0}
+input::placeholder,textarea::placeholder{color:#8696a0}
+svg{display:block}
+img{display:block;max-width:100%}
 
-/* LOADING */
-#load{position:fixed;inset:0;background:#075e54;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:20px;transition:opacity .3s}
-#load.hide{opacity:0;pointer-events:none}
-.load-logo{width:90px;height:90px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:900;color:#075e54;box-shadow:0 8px 30px rgba(0,0,0,.3)}
-.load-name{color:#fff;font-size:28px;font-weight:800;letter-spacing:-.5px}
-.load-spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.load-msg{color:rgba(255,255,255,.7);font-size:13px}
+/* ═══ LOADER ═══ */
+#load{position:fixed;inset:0;background:#075e54;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:18px;transition:opacity .3s}
+#load.out{opacity:0;pointer-events:none}
+.ld-logo{width:96px;height:96px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:900;color:#075e54;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.ld-name{color:#fff;font-size:30px;font-weight:800;letter-spacing:-.5px}
+.ld-spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-msg{color:rgba(255,255,255,.65);font-size:13px}
 
-/* ERROR BANNER */
-#err{position:fixed;top:0;left:0;right:0;background:#ea4335;color:#fff;padding:12px 16px;font-size:13px;z-index:2000;display:flex;justify-content:space-between;gap:10px;align-items:center}
-#err button{color:#fff;font-weight:700;font-size:18px;padding:0 8px}
+/* ═══ ERROR BANNER ═══ */
+#err{position:fixed;top:0;left:0;right:0;background:#ea4335;color:#fff;padding:10px 16px;font-size:13px;z-index:9000;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#err button{color:#fff;font-weight:900;font-size:22px;padding:0 8px}
 
-/* AUTH */
-#auth{position:fixed;inset:0;background:#075e54;overflow-y:auto;display:flex;flex-direction:column;padding:30px 22px 40px;z-index:100}
-.auth-brand{text-align:center;margin:30px 0 40px}
-.auth-circle{width:100px;height:100px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:900;color:#075e54;margin:0 auto 20px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
-.auth-name{color:#fff;font-size:32px;font-weight:800;letter-spacing:-1px}
-.auth-tag{color:rgba(255,255,255,.75);font-size:14px;margin-top:6px}
-.auth-box{background:#fff;border-radius:16px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+/* ═══ AUTH ═══ */
+#auth{position:fixed;inset:0;background:#075e54;overflow-y:auto;padding:30px 22px 40px;z-index:100;-webkit-overflow-scrolling:touch}
+.auth-brand{text-align:center;margin:30px 0 36px}
+.auth-c{width:100px;height:100px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:900;color:#075e54;margin:0 auto 20px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.auth-nm{color:#fff;font-size:32px;font-weight:800;letter-spacing:-1px}
+.auth-tg{color:rgba(255,255,255,.75);font-size:14px;margin-top:6px}
+.auth-box{background:#fff;border-radius:16px;padding:24px;color:#111b21;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .auth-tabs{display:flex;background:#f0f2f5;border-radius:10px;padding:4px;margin-bottom:20px}
-.auth-tab{flex:1;padding:11px;border-radius:8px;font-size:14px;font-weight:600;color:#667781;transition:all .2s;text-align:center}
-.auth-tab.on{background:#fff;color:#075e54;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.auth-tab{flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:600;color:#667781;transition:.2s;text-align:center;cursor:pointer}
+.auth-tab.on{background:#fff;color:#075e54;box-shadow:0 2px 6px rgba(0,0,0,.08)}
 .fld{margin-bottom:16px}
 .fld label{display:block;font-size:12px;font-weight:600;color:#667781;margin-bottom:6px}
-.fld input{width:100%;padding:13px 14px;border-radius:10px;background:#f0f2f5;color:#111b21;font-size:15px;border:2px solid transparent;transition:border .15s}
+.fld input{width:100%;padding:14px;border-radius:10px;background:#f0f2f5;color:#111b21;font-size:15px;border:2px solid transparent;transition:all .15s}
 .fld input:focus{border-color:#00a884;background:#fff}
-.fld input::placeholder{color:#8696a0}
-.btn-main{width:100%;padding:14px;border-radius:10px;background:#00a884;color:#fff;font-size:15px;font-weight:700;transition:all .15s;box-shadow:0 3px 12px rgba(0,168,132,.35)}
+.btn-main{width:100%;padding:15px;border-radius:10px;background:#00a884;color:#fff;font-size:15px;font-weight:700;transition:.15s;box-shadow:0 4px 14px rgba(0,168,132,.35)}
 .btn-main:active{transform:scale(.98)}
 .btn-main:disabled{opacity:.6}
-.msgbox{padding:10px 12px;border-radius:8px;font-size:13px;margin-top:12px;display:none}
-.msgbox.on{display:block}
-.msgbox.err{background:#fee2e2;color:#991b1b;border-left:3px solid #dc2626}
-.msgbox.ok{background:#d1fae5;color:#065f46;border-left:3px solid #10b981}
-.demo-box{background:rgba(255,255,255,.1);color:#fff;padding:12px;border-radius:10px;text-align:center;margin-top:20px;font-size:12px;border:1px solid rgba(255,255,255,.15)}
-.demo-box b{color:#fff}
+.amsg{padding:11px 13px;border-radius:8px;font-size:13px;margin-top:14px;display:none}
+.amsg.on{display:block}
+.amsg.err{background:#fee2e2;color:#991b1b;border-left:3px solid #dc2626}
+.amsg.ok{background:#d1fae5;color:#065f46;border-left:3px solid #10b981}
+.auth-info{margin-top:22px;text-align:center;font-size:12px;color:rgba(255,255,255,.7);line-height:1.6}
 
-/* APP */
+/* ═══ APP ═══ */
 #app{display:none;flex-direction:column;height:100vh;height:100dvh}
 #app.on{display:flex}
-.topbar{background:#075e54;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top,0));display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.topbar-t{color:#fff;font-size:20px;font-weight:700}
-.topbar-a{display:flex;gap:16px;align-items:center}
-.topbar-btn{width:26px;height:26px;color:#fff;display:flex;align-items:center;justify-content:center;position:relative}
-.topbar-btn svg{width:22px;height:22px}
-.topbar-av{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#128c7e}
-.dot{position:absolute;top:0;right:0;width:10px;height:10px;background:#00a884;border-radius:50%;border:2px solid #075e54}
+.app-top{background:#075e54;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:10}
+.top-t{color:#fff;font-size:20px;font-weight:700;letter-spacing:-.3px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-actions{display:flex;gap:4px;align-items:center}
+.top-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s}
+.top-btn:active{background:rgba(255,255,255,.15)}
+.top-btn svg{width:22px;height:22px}
+.top-av{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#128c7e;border:2px solid rgba(255,255,255,.3);cursor:pointer}
 
-.tabview{display:none;flex:1;flex-direction:column;overflow:hidden;background:#111b21}
-.tabview.on{display:flex}
+/* TAB VIEWS */
+.tv{display:none;flex:1;flex-direction:column;overflow:hidden;background:#111b21}
+.tv.on{display:flex}
 
-.search-bar{padding:8px 12px;background:#111b21}
-.search-in{width:100%;padding:9px 16px;border-radius:10px;background:#202c33;color:#e9edef;font-size:14px}
-.search-in::placeholder{color:#8696a0}
+/* SEARCH */
+.search-bar{padding:8px 12px;background:#111b21;flex-shrink:0}
+.search-in{width:100%;padding:10px 18px;border-radius:10px;background:#202c33;color:#e9edef;font-size:15px;border:2px solid transparent;transition:border .15s}
+.search-in:focus{border-color:#00a884}
 
+/* CHAT LIST */
 .list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.item{display:flex;gap:13px;padding:11px 16px;cursor:pointer;transition:background .1s}
-.item:active{background:#202c33}
-.item-av{width:52px;height:52px;border-radius:50%;object-fit:cover;background:#128c7e;flex-shrink:0}
-.item-body{flex:1;min-width:0;border-bottom:1px solid #202c33;padding-bottom:11px;margin-top:1px}
-.item:last-child .item-body{border-bottom:none}
-.item-name{font-size:16px;font-weight:500;color:#e9edef;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.item-prev{font-size:13px;color:#8696a0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
-.item-side{display:flex;flex-direction:column;align-items:flex-end;padding-top:2px;gap:5px}
-.item-time{font-size:12px;color:#8696a0}
-.item-badge{background:#00a884;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;min-width:20px;text-align:center}
+.ch-item{display:flex;gap:13px;padding:11px 16px;cursor:pointer;transition:background .1s;align-items:center}
+.ch-item:active{background:#202c33}
+.ch-av-wrap{position:relative;flex-shrink:0}
+.ch-av{width:52px;height:52px;border-radius:50%;object-fit:cover;background:#128c7e}
+.ch-dot{position:absolute;bottom:1px;right:1px;width:14px;height:14px;border-radius:50%;border:3px solid #111b21}
+.ch-dot.on{background:#00a884}
+.ch-dot.off{background:#8696a0}
+.ch-body{flex:1;min-width:0;border-bottom:1px solid #202c33;padding-bottom:11px;margin-top:1px}
+.ch-item:last-child .ch-body{border-bottom:none}
+.ch-name{font-size:16px;font-weight:500;color:#e9edef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.ch-verified{color:#00a884;width:16px;height:16px;flex-shrink:0}
+.ch-prev{font-size:13.5px;color:#8696a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;display:flex;align-items:center;gap:4px}
+.ch-prev.you{color:#8696a0}
+.ch-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px;flex-shrink:0}
+.ch-time{font-size:12px;color:#8696a0}
+.ch-badge{background:#00a884;color:#fff;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;min-width:20px;text-align:center}
+.ch-check svg{width:16px;height:16px;color:#53bdeb}
 
-.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8696a0;padding:40px 20px;text-align:center;gap:12px}
-.empty-ic{width:80px;height:80px;border-radius:50%;background:#202c33;display:flex;align-items:center;justify-content:center}
-.empty-ic svg{width:40px;height:40px;color:#8696a0}
+/* EMPTY STATE */
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;color:#8696a0;gap:14px}
+.empty-ic{width:90px;height:90px;border-radius:50%;background:#202c33;display:flex;align-items:center;justify-content:center}
+.empty-ic svg{width:44px;height:44px;color:#8696a0}
 .empty-t{font-size:16px;font-weight:600;color:#e9edef}
-.empty-s{font-size:13px;line-height:1.5}
+.empty-s{font-size:13.5px;line-height:1.55;max-width:260px}
 
-/* CHAT */
-.chat-top{background:#075e54;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0));display:flex;align-items:center;gap:12px;flex-shrink:0}
-.back-btn{width:32px;height:32px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.back-btn svg{width:22px;height:22px}
-.chat-av{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#128c7e;flex-shrink:0}
-.chat-hdr{flex:1;min-width:0}
-.chat-nm{font-size:16px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.chat-st{font-size:12px;color:rgba(255,255,255,.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* CHAT ROOM */
+.room-top{background:#075e54;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0));display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:5}
+.back{width:40px;height:40px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.back:active{background:rgba(255,255,255,.15)}
+.back svg{width:24px;height:24px}
+.room-av{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#128c7e;flex-shrink:0}
+.room-hdr{flex:1;min-width:0}
+.room-nm{font-size:16px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.room-st{font-size:12px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;display:flex;align-items:center;gap:5px}
+.room-st .online-dot{width:7px;height:7px;border-radius:50%;background:#25d366}
+.room-actions{display:flex;gap:2px}
+.room-btn{width:40px;height:40px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center}
+.room-btn:active{background:rgba(255,255,255,.15)}
+.room-btn svg{width:22px;height:22px}
 
-.msgs{flex:1;overflow-y:auto;padding:14px 12px;background:#0b141a;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch}
-.msg{max-width:82%;padding:8px 12px 6px;border-radius:8px;font-size:14.5px;line-height:1.4;word-wrap:break-word;white-space:pre-wrap;word-break:break-word;margin-bottom:4px;position:relative;animation:pop .15s}
-@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+/* MESSAGES */
+.msgs{flex:1;overflow-y:auto;padding:14px 12px;background:#0b141a;display:flex;flex-direction:column;gap:3px;-webkit-overflow-scrolling:touch;position:relative}
+.msgs::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 20% 30%,rgba(255,255,255,.015) 0,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.015) 0,transparent 50%);pointer-events:none;z-index:0}
+.msg{max-width:85%;padding:7px 11px 20px;border-radius:8px;font-size:15px;line-height:1.4;word-wrap:break-word;white-space:pre-wrap;word-break:break-word;position:relative;z-index:1;animation:mpop .18s cubic-bezier(.16,1,.3,1)}
+@keyframes mpop{from{opacity:0;transform:scale(.94) translateY(4px)}to{opacity:1;transform:none}}
 .msg.me{align-self:flex-end;background:#005c4b;border-top-right-radius:2px}
+.msg.me::after{content:'';position:absolute;top:0;right:-8px;width:0;height:0;border:8px solid transparent;border-left-color:#005c4b;border-top:0;border-right:0}
 .msg.oth{align-self:flex-start;background:#202c33;border-top-left-radius:2px}
-.msg-txt{margin-bottom:16px}
-.msg-meta{font-size:11px;color:#8696a0;position:absolute;bottom:4px;right:8px;display:flex;align-items:center;gap:3px}
-.msg.me .msg-meta{color:rgba(233,237,239,.65)}
-.chk{display:inline-flex;color:#53bdeb}
-.chk svg{width:14px;height:14px}
-.day{align-self:center;background:#182229;color:#8696a0;font-size:12px;padding:5px 12px;border-radius:8px;margin:8px 0}
-.typing{display:flex;gap:3px;padding:10px 14px;align-self:flex-start;background:#202c33;border-radius:8px}
-.typing span{width:6px;height:6px;background:#8696a0;border-radius:50%;animation:bnc 1.4s infinite}
-.typing span:nth-child(2){animation-delay:.2s}
-.typing span:nth-child(3){animation-delay:.4s}
-@keyframes bnc{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
+.msg.oth::before{content:'';position:absolute;top:0;left:-8px;width:0;height:0;border:8px solid transparent;border-right-color:#202c33;border-top:0;border-left:0}
+.msg-sender{font-size:12.5px;font-weight:600;color:#00a884;margin-bottom:2px}
+.msg-time{font-size:11px;color:#8696a0;position:absolute;bottom:4px;right:8px;display:flex;align-items:center;gap:3px}
+.msg.me .msg-time{color:rgba(233,237,239,.6)}
+.msg-check{display:inline-flex;color:#53bdeb}
+.msg-check svg{width:15px;height:15px}
+.msg-day{align-self:center;background:rgba(24,34,41,.95);color:#8696a0;font-size:12px;padding:5px 13px;border-radius:8px;margin:10px 0;box-shadow:0 1px 2px rgba(0,0,0,.2);z-index:1;backdrop-filter:blur(6px)}
+.typing{display:flex;gap:4px;padding:10px 14px;align-self:flex-start;background:#202c33;border-radius:14px;margin-top:2px}
+.typing span{width:7px;height:7px;background:#8696a0;border-radius:50%;animation:ty .9s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes ty{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
 
+/* INPUT BAR */
 .input-bar{background:#111b21;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0));display:flex;gap:6px;align-items:flex-end;flex-shrink:0}
-.input-w{flex:1;background:#202c33;border-radius:22px;padding:8px 14px;display:flex;align-items:center;min-height:42px}
-.input-f{flex:1;color:#e9edef;font-size:15px;max-height:100px;resize:none;line-height:1.4}
-.input-f::placeholder{color:#8696a0}
-.send-b{width:44px;height:44px;border-radius:50%;background:#00a884;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:all .1s}
+.input-w{flex:1;background:#202c33;border-radius:24px;padding:8px 10px 8px 16px;display:flex;align-items:center;gap:6px;min-height:46px}
+.input-f{flex:1;color:#e9edef;font-size:15.5px;max-height:120px;resize:none;line-height:1.35;padding:6px 0}
+.input-btn{width:36px;height:36px;border-radius:50%;color:#8696a0;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.input-btn:active{background:rgba(255,255,255,.08)}
+.input-btn svg{width:22px;height:22px}
+.send-b{width:46px;height:46px;border-radius:50%;background:#00a884;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .12s;box-shadow:0 2px 8px rgba(0,168,132,.35)}
 .send-b:active{transform:scale(.9)}
 .send-b svg{width:22px;height:22px}
 
 /* PROFILE */
-.prof-body{flex:1;overflow-y:auto;background:#111b21}
-.prof-top{padding:30px 16px 20px;text-align:center}
-.prof-av{width:120px;height:120px;border-radius:50%;object-fit:cover;background:#128c7e;margin:0 auto 14px;border:4px solid #202c33}
-.prof-nm{font-size:22px;font-weight:700;color:#e9edef}
-.prof-em{font-size:14px;color:#8696a0;margin-top:4px}
-.prof-item{padding:16px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #202c33;cursor:pointer}
+.prof{flex:1;overflow-y:auto;background:#111b21;-webkit-overflow-scrolling:touch}
+.prof-top{padding:30px 16px 24px;text-align:center;background:linear-gradient(180deg,rgba(0,168,132,.08) 0%,transparent 100%)}
+.prof-av{width:130px;height:130px;border-radius:50%;object-fit:cover;background:#128c7e;margin:0 auto 16px;border:4px solid #202c33;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.prof-nm{font-size:24px;font-weight:700;color:#e9edef;margin-bottom:4px}
+.prof-em{font-size:14px;color:#8696a0}
+.prof-bio{margin-top:14px;padding:12px 16px;background:#202c33;border-radius:12px;font-size:13.5px;color:#8696a0;text-align:center;line-height:1.5;max-width:340px;margin-left:auto;margin-right:auto}
+.prof-section{padding:20px 12px 8px}
+.prof-section-title{font-size:12px;font-weight:700;color:#8696a0;text-transform:uppercase;letter-spacing:.6px;padding:0 8px 8px}
+.prof-item{display:flex;align-items:center;gap:16px;padding:15px 16px;border-radius:12px;cursor:pointer;transition:background .1s;margin-bottom:2px}
 .prof-item:active{background:#202c33}
 .prof-ic{width:26px;height:26px;color:#00a884;flex-shrink:0}
 .prof-ic svg{width:26px;height:26px}
-.prof-txt{flex:1}
-.prof-t{font-size:15px;color:#e9edef}
-.prof-s{font-size:13px;color:#8696a0;margin-top:2px}
+.prof-txt{flex:1;min-width:0}
+.prof-t{font-size:15px;color:#e9edef;font-weight:500}
+.prof-s{font-size:12.5px;color:#8696a0;margin-top:2px}
+.prof-arrow{color:#8696a0;flex-shrink:0}
+.prof-arrow svg{width:20px;height:20px}
 .prof-item.dgr .prof-ic{color:#f15c6d}
 .prof-item.dgr .prof-t{color:#f15c6d}
+.prof-footer{text-align:center;padding:30px 16px 40px;font-size:12px;color:#667781;line-height:1.6}
 
-/* NAV */
-.nav{background:#111b21;display:flex;border-top:1px solid #202c33;padding-bottom:env(safe-area-inset-bottom,0);flex-shrink:0}
-.nav-t{flex:1;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:3px;color:#8696a0;font-size:11px;font-weight:500;position:relative}
-.nav-t svg{width:24px;height:24px}
-.nav-t.on{color:#00a884}
-.nav-t.on::before{content:'';position:absolute;top:0;left:22%;right:22%;height:3px;background:#00a884;border-radius:0 0 3px 3px}
+/* BOTTOM NAV */
+.bnav{background:#111b21;display:flex;border-top:1px solid #202c33;padding-bottom:env(safe-area-inset-bottom,0);flex-shrink:0}
+.bnav-btn{flex:1;padding:9px 0 7px;display:flex;flex-direction:column;align-items:center;gap:3px;color:#8696a0;font-size:11px;font-weight:500;position:relative;transition:color .15s}
+.bnav-btn svg{width:24px;height:24px}
+.bnav-btn.on{color:#00a884}
+.bnav-btn.on::before{content:'';position:absolute;top:0;left:26%;right:26%;height:3px;background:#00a884;border-radius:0 0 3px 3px}
+.bnav-badge{position:absolute;top:5px;right:calc(50% - 22px);background:#00a884;color:#fff;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:99px;min-width:18px;text-align:center;border:2px solid #111b21}
 
 /* TOAST */
-#toasts{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 40px);max-width:400px}
-.toast{padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:sd .3s;text-align:center}
-.toast.ok{background:#00a884}
-.toast.err{background:#ea4335}
-.toast.inf{background:#2196f3}
-@keyframes sd{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+#toasts{position:fixed;top:calc(20px + env(safe-area-inset-top,0));left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 40px);max-width:420px}
+.toast{padding:13px 18px;border-radius:12px;font-size:14px;font-weight:500;color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:tsd .3s cubic-bezier(.16,1,.3,1);text-align:center;backdrop-filter:blur(20px)}
+.toast.ok{background:rgba(0,168,132,.95)}
+.toast.err{background:rgba(234,67,53,.95)}
+.toast.inf{background:rgba(33,150,243,.95)}
+@keyframes tsd{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:none}}
 
 /* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:8000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fi .15s}
-@keyframes fi{from{opacity:0}to{opacity:1}}
-.modal{background:#202c33;border-radius:14px;padding:22px;max-width:340px;width:100%;animation:pop .2s}
-.modal h3{font-size:17px;font-weight:600;margin-bottom:10px}
-.modal p{font-size:14px;color:#8696a0;line-height:1.5;margin-bottom:20px}
-.modal-acts{display:flex;gap:8px;justify-content:flex-end}
-.mbtn{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;color:#8696a0}
-.mbtn.pri{color:#00a884}
-.mbtn.dgr{color:#ea4335}
-.modal input{width:100%;padding:11px 13px;border-radius:9px;background:#111b21;color:#e9edef;font-size:14px;margin-bottom:12px;border:2px solid transparent}
-.modal input:focus{border-color:#00a884}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:8000;display:flex;align-items:center;justify-content:center;padding:22px;animation:fd .18s}
+@keyframes fd{from{opacity:0}to{opacity:1}}
+.modal{background:#202c33;border-radius:16px;padding:24px;max-width:360px;width:100%;animation:mpop .22s;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:14px;color:#e9edef}
+.modal p{font-size:14px;color:#8696a0;line-height:1.55;margin-bottom:22px}
+.modal input,.modal textarea{width:100%;padding:13px 14px;border-radius:11px;background:#111b21;color:#e9edef;font-size:14.5px;border:2px solid transparent;margin-bottom:12px;transition:border .15s;resize:none;font-family:inherit}
+.modal input:focus,.modal textarea:focus{border-color:#00a884}
+.modal-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.mbtn{padding:11px 20px;border-radius:9px;font-size:14.5px;font-weight:600;color:#8696a0;transition:background .15s}
+.mbtn:active{background:#111b21}
+.mbtn.pri{color:#00a884;font-weight:700}
+.mbtn.dgr{color:#f15c6d;font-weight:700}
+.modal-av-preview{text-align:center;margin-bottom:16px}
+.modal-av-preview img{width:90px;height:90px;border-radius:50%;object-fit:cover;border:4px solid #111b21;margin:0 auto}
+
+/* EMOJI PICKER */
+.emoji-p{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0));right:12px;background:#202c33;border-radius:16px;padding:12px;width:300px;max-width:calc(100vw - 24px);box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:7000;animation:mpop .2s;max-height:360px;display:flex;flex-direction:column}
+.emoji-search{width:100%;padding:10px 14px;border-radius:10px;background:#111b21;color:#e9edef;font-size:14px;margin-bottom:10px}
+.emoji-list{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;overflow-y:auto;padding-right:4px}
+.emoji-b{aspect-ratio:1;font-size:22px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .1s;line-height:1}
+.emoji-b:active{background:#111b21;transform:scale(1.15)}
+
+/* RESPONSIVE */
+@media(min-width:768px){
+  #auth{padding:40px}
+  .auth-brand{margin-top:60px}
+  .bnav{max-width:600px;margin:0 auto;width:100%;border-radius:0}
+  .app-top,.room-top{padding-left:20px;padding-right:20px}
+  .empty-ic{width:100px;height:100px}
+  .empty-ic svg{width:50px;height:50px}
+}
+@media(min-width:1024px){
+  body{background:#000}
+  #app{max-width:900px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,.6);height:100vh}
+}
 </style>
 </head>
 <body>
 
-<!-- ERROR BANNER -->
 <div id="err" class="hide">
-  <span id="err-text">Ada masalah</span>
+  <span id="err-t">Ada masalah</span>
   <button onclick="document.getElementById('err').classList.add('hide')">×</button>
 </div>
 
 <!-- LOADER -->
 <div id="load">
-  <div class="load-logo">H</div>
-  <div class="load-name">HubKita</div>
-  <div class="load-spin"></div>
-  <div class="load-msg" id="load-msg">Memuat aplikasi...</div>
+  <div class="ld-logo">H</div>
+  <div class="ld-name">HubKita</div>
+  <div class="ld-spin"></div>
+  <div class="ld-msg" id="ld-msg">Memuat...</div>
 </div>
 
 <!-- AUTH -->
 <div id="auth" class="hide">
   <div class="auth-brand">
-    <div class="auth-circle">H</div>
-    <div class="auth-name">HubKita</div>
-    <div class="auth-tag">Chat tanpa batas</div>
+    <div class="auth-c">H</div>
+    <div class="auth-nm">HubKita</div>
+    <div class="auth-tg">Chat tanpa batas</div>
   </div>
   <div class="auth-box">
     <div class="auth-tabs">
-      <div class="auth-tab on" data-t="login">Masuk</div>
-      <div class="auth-tab" data-t="reg">Daftar</div>
+      <div class="auth-tab on" data-t="login" onclick="Auth.tab('login')">Masuk</div>
+      <div class="auth-tab" data-t="reg" onclick="Auth.tab('reg')">Daftar</div>
     </div>
-    <form id="f-login">
-      <div class="fld"><label>Email</label><input type="email" id="li-em" placeholder="nama@email.com" required></div>
-      <div class="fld"><label>Password</label><input type="password" id="li-pw" placeholder="••••••••" required minlength="6"></div>
+    <form id="f-login" onsubmit="Auth.login(event)">
+      <div class="fld"><label>Email</label><input type="email" id="li-em" placeholder="nama@email.com" autocomplete="email" required></div>
+      <div class="fld"><label>Password</label><input type="password" id="li-pw" placeholder="••••••••" autocomplete="current-password" required minlength="6"></div>
       <button type="submit" class="btn-main" id="b-login">Masuk</button>
-      <div class="msgbox" id="m-login"></div>
+      <div class="amsg" id="m-login"></div>
     </form>
-    <form id="f-reg" class="hide">
-      <div class="fld"><label>Nama</label><input type="text" id="re-nm" placeholder="Budi Santoso" required minlength="2"></div>
-      <div class="fld"><label>Email</label><input type="email" id="re-em" placeholder="nama@email.com" required></div>
-      <div class="fld"><label>Password</label><input type="password" id="re-pw" placeholder="Min. 6 karakter" required minlength="6"></div>
+    <form id="f-reg" class="hide" onsubmit="Auth.register(event)">
+      <div class="fld"><label>Nama Lengkap</label><input type="text" id="re-nm" placeholder="Budi Santoso" required minlength="2" maxlength="50"></div>
+      <div class="fld"><label>Email</label><input type="email" id="re-em" placeholder="nama@email.com" autocomplete="email" required></div>
+      <div class="fld"><label>Password</label><input type="password" id="re-pw" placeholder="Min. 6 karakter" autocomplete="new-password" required minlength="6"></div>
       <button type="submit" class="btn-main" id="b-reg">Buat Akun</button>
-      <div class="msgbox" id="m-reg"></div>
+      <div class="amsg" id="m-reg"></div>
     </form>
   </div>
-  <div class="demo-box">
-    Info: Buka HubKita di 2 HP/HP+Incognito, daftar 2 akun, saling chat!
+  <div class="auth-info">
+    Chat real-time dengan siapa saja<br>
+    Bagikan link ini untuk mengundang teman
   </div>
 </div>
 
 <!-- APP -->
 <div id="app">
-  <div class="topbar">
-    <div class="topbar-t" id="top-title">HubKita</div>
-    <div class="topbar-a">
-      <img class="topbar-av" id="top-av" alt="" onclick="App.go('profile')">
+  <div class="app-top">
+    <div class="top-t" id="top-t">HubKita</div>
+    <div class="top-actions" id="top-actions">
+      <button class="top-btn" onclick="App.showAbout()" title="Info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </button>
+      <img class="top-av" id="top-av" onclick="App.go('profile')">
     </div>
   </div>
 
   <!-- CHATS LIST -->
-  <div class="tabview on" id="v-chats">
-    <div class="search-bar"><input class="search-in" id="search" placeholder="Cari nama"></div>
+  <div class="tv on" id="tv-chats">
+    <div class="search-bar"><input class="search-in" id="search" placeholder="Cari nama atau email" oninput="Chats.render()"></div>
     <div class="list" id="chat-list"></div>
   </div>
 
   <!-- CHAT ROOM -->
-  <div class="tabview" id="v-room">
-    <div class="chat-top">
-      <button class="back-btn" onclick="App.back()">
+  <div class="tv" id="tv-room">
+    <div class="room-top">
+      <button class="back" onclick="Room.close()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <img class="chat-av" id="r-av" alt="">
-      <div class="chat-hdr">
-        <div class="chat-nm" id="r-nm">—</div>
-        <div class="chat-st" id="r-st">—</div>
+      <img class="room-av" id="room-av">
+      <div class="room-hdr">
+        <div class="room-nm" id="room-nm">—</div>
+        <div class="room-st" id="room-st">—</div>
+      </div>
+      <div class="room-actions">
+        <button class="room-btn" title="Telepon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </button>
+        <button class="room-btn" title="Video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </button>
       </div>
     </div>
     <div class="msgs" id="room-msgs"></div>
     <div class="input-bar">
       <div class="input-w">
-        <textarea class="input-f" id="msg-input" placeholder="Ketik pesan" rows="1"></textarea>
+        <button class="input-btn" onclick="Emoji.toggle(event)" title="Emoji">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </button>
+        <textarea class="input-f" id="room-in" placeholder="Ketik pesan" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();Room.send()}"></textarea>
       </div>
-      <button class="send-b" id="btn-send">
+      <button class="send-b" onclick="Room.send()" title="Kirim">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
   </div>
 
   <!-- PROFILE -->
-  <div class="tabview" id="v-profile">
-    <div class="prof-body">
+  <div class="tv" id="tv-profile">
+    <div class="prof">
       <div class="prof-top">
-        <img class="prof-av" id="p-av" alt="">
-        <div class="prof-nm" id="p-nm">—</div>
-        <div class="prof-em" id="p-em">—</div>
+        <img class="prof-av" id="pr-av">
+        <div class="prof-nm" id="pr-nm">—</div>
+        <div class="prof-em" id="pr-em">—</div>
+        <div class="prof-bio" id="pr-bio"></div>
       </div>
-      <div class="prof-item" onclick="App.edit()">
-        <div class="prof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="prof-txt"><div class="prof-t">Edit Profil</div><div class="prof-s">Nama & bio</div></div>
+      <div class="prof-section">
+        <div class="prof-section-title">Akun</div>
+        <div class="prof-item" onclick="Profile.edit()">
+          <div class="prof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="prof-txt"><div class="prof-t">Edit Profil</div><div class="prof-s">Nama, bio, dan foto</div></div>
+          <div class="prof-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="prof-item" onclick="App.share()">
+          <div class="prof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <div class="prof-txt"><div class="prof-t">Bagikan Aplikasi</div><div class="prof-s">Undang teman ke HubKita</div></div>
+          <div class="prof-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
       </div>
-      <div class="prof-item" onclick="App.about()">
-        <div class="prof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
-        <div class="prof-txt"><div class="prof-t">Tentang HubKita</div><div class="prof-s">v9.5 Lite Edition</div></div>
+      <div class="prof-section">
+        <div class="prof-section-title">Lainnya</div>
+        <div class="prof-item" onclick="App.showAbout()">
+          <div class="prof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+          <div class="prof-txt"><div class="prof-t">Tentang HubKita</div><div class="prof-s">v10.0 Supabase Edition</div></div>
+          <div class="prof-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="prof-item dgr" onclick="Profile.logout()">
+          <div class="prof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+          <div class="prof-txt"><div class="prof-t">Keluar</div><div class="prof-s">Logout dari akun ini</div></div>
+        </div>
       </div>
-      <div class="prof-item dgr" onclick="App.logout()">
-        <div class="prof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
-        <div class="prof-txt"><div class="prof-t">Keluar</div><div class="prof-s">Logout dari akun</div></div>
+      <div class="prof-footer">
+        HubKita v10.0<br>
+        Chat real-time dengan Supabase<br>
+        <span style="color:#00a884">● Online</span>
       </div>
     </div>
   </div>
 
-  <div class="nav">
-    <div class="nav-t on" data-go="chats">
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="bnav-btn on" data-go="chats" onclick="App.go('chats')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       <span>Chat</span>
-    </div>
-    <div class="nav-t" data-go="profile">
+      <span class="bnav-badge hide" id="nav-badge">0</span>
+    </button>
+    <button class="bnav-btn" data-go="profile" onclick="App.go('profile')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span>Saya</span>
-    </div>
+    </button>
   </div>
 </div>
 
 <div id="toasts"></div>
+<div id="emoji-picker"></div>
 
 <script>
 'use strict';
-// ═════════════════════════════════════════════════════
-// HUBKITA v9.5 LITE — Supabase Realtime Chat
-// ═════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
+   HUBKITA v10.0 — FULL FEATURES + SUPABASE REALTIME
+   ═══════════════════════════════════════════════════════════ */
 
-// ════ KONFIGURASI ════
 var SUPABASE_URL = 'https://slevsqmdevfiiemwvtgy.supabase.co';
 var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZXZzcW1kZXZmaWllbXd2dGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNjQ3MDksImV4cCI6MjEwNjc0MDcwOX0.F9kvjLp64gU7u_lqk1q95rm5Wq4VE4zKC9QzZ4IfYmk';
 
-// ════ STATE ════
-var State = {
-  sb: null,
-  user: null,
-  profile: null,
-  active: null,
-  profiles: [],
-  previews: {},
-  channel: null
-};
+var sb = null;
+var User = null;
+var Profile = null;
+var Active = null;
+var Profiles = [];
+var Previews = {};
+var Unread = {};
+var RealtimeCh = null;
 
-// ════ HELPERS ════
+// ─── HELPERS ───
 function $(id){ return document.getElementById(id); }
 function show(id){ $(id).classList.remove('hide'); }
 function hide(id){ $(id).classList.add('hide'); }
-function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
-function timeNow(){ var d=new Date(); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
-function timeAgo(ts){
-  var diff = Date.now() - new Date(ts).getTime();
-  var s = Math.floor(diff/1000);
-  if(s<60) return 'baru';
-  var m = Math.floor(s/60); if(m<60) return m+'m';
-  var h = Math.floor(m/60); if(h<24) return h+'j';
-  var d = Math.floor(h/24); if(d<7) return d+'h';
-  return new Date(ts).toLocaleDateString('id-ID',{day:'numeric',month:'short'});
-}
-function avatar(name){
-  var colors = ['6366f1','ec4899','10b981','f59e0b','8b5cf6','06b6d4','ef4444','84cc16'];
-  var hash = 0; var s = name||'?';
-  for(var i=0;i<s.length;i++){ hash = ((hash<<5)-hash) + s.charCodeAt(i); hash |= 0; }
-  var c = colors[Math.abs(hash) % colors.length];
-  return 'https://ui-avatars.com/api/?name='+encodeURIComponent(s)+'&background='+c+'&color=fff&size=128&bold=true';
-}
-
-// ════ TOAST ════
-function toast(msg, type, dur){
-  type = type || 'inf'; dur = dur || 3000;
+function esc(s){ var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+function lstatus(m){ $('ld-msg').textContent = m; }
+function showErr(m){ $('err-t').textContent = m; show('err'); }
+function toast(msg, type){
+  type = type || 'inf';
   var c = $('toasts');
   var t = document.createElement('div');
   t.className = 'toast ' + type;
@@ -344,381 +423,389 @@ function toast(msg, type, dur){
   setTimeout(function(){
     t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; t.style.transition = 'all .3s';
     setTimeout(function(){ t.remove(); }, 300);
-  }, dur);
+  }, 3000);
+}
+function avatar(name){
+  var colors = ['6366f1','ec4899','10b981','f59e0b','8b5cf6','06b6d4','ef4444','84cc16','f97316','14b8a6'];
+  var h = 0, s = name || '?';
+  for(var i = 0; i < s.length; i++){ h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+  return 'https://ui-avatars.com/api/?name=' + encodeURIComponent(s) + '&background=' + colors[Math.abs(h) % colors.length] + '&color=fff&size=128&bold=true';
+}
+function timeAgo(ts){
+  var d = Date.now() - new Date(ts).getTime();
+  var s = Math.floor(d/1000);
+  if(s < 30) return 'baru saja';
+  if(s < 60) return s + 'd';
+  var m = Math.floor(s/60);
+  if(m < 60) return m + 'm';
+  var h = Math.floor(m/60);
+  if(h < 24) return h + 'j';
+  var dd = Math.floor(h/24);
+  if(dd < 7) return dd + 'h';
+  return new Date(ts).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+}
+function timeMsg(ts){
+  try {
+    return new Date(ts).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+  } catch(e){ return ''; }
+}
+function dayLabel(ts){
+  var d = new Date(ts);
+  var today = new Date();
+  var yest = new Date(Date.now() - 86400000);
+  if(d.toDateString() === today.toDateString()) return 'Hari ini';
+  if(d.toDateString() === yest.toDateString()) return 'Kemarin';
+  return d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
 }
 
-// ════ ERROR BANNER ════
-function showErr(msg){
-  $('err-text').textContent = msg;
-  show('err');
-}
-
-// ════ AUTH UI ════
-document.querySelectorAll('.auth-tab').forEach(function(el){
-  el.addEventListener('click', function(){
-    var t = el.dataset.t;
-    document.querySelectorAll('.auth-tab').forEach(function(x){ x.classList.toggle('on', x.dataset.t === t); });
+// ─── AUTH ───
+var Auth = {
+  tab: function(t){
+    document.querySelectorAll('.auth-tab').forEach(function(el){
+      el.classList.toggle('on', el.dataset.t === t);
+    });
     $('f-login').classList.toggle('hide', t !== 'login');
     $('f-reg').classList.toggle('hide', t !== 'reg');
-  });
-});
+  },
 
-function authMsg(id, msg, kind){
-  var el = $(id);
-  el.textContent = msg;
-  el.className = 'msgbox on ' + kind;
-}
+  msg: function(id, txt, kind){
+    var el = $(id);
+    el.textContent = txt;
+    el.className = 'amsg on ' + kind;
+  },
 
-// ════ INIT ════
-function initSupabase(){
-  if(!window.supabase){
-    showErr('Gagal load Supabase. Cek koneksi internet.');
-    hide('load');
-    show('auth');
-    return false;
-  }
-  try {
-    State.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    return true;
-  } catch(e){
-    showErr('Gagal koneksi Supabase: ' + e.message);
-    hide('load');
-    show('auth');
-    return false;
-  }
-}
-
-async function boot(){
-  $('load-msg').textContent = 'Memuat Supabase...';
-  await new Promise(function(r){ setTimeout(r, 300); });
-
-  if(!initSupabase()) return;
-
-  $('load-msg').textContent = 'Memeriksa sesi...';
-
-  try {
-    // Cek session
-    var res = await State.sb.auth.getSession();
-    var session = res.data.session;
-
-    if(session && session.user){
-      await enterApp(session.user);
-    } else {
-      hide('load');
-      show('auth');
-    }
-  } catch(e){
-    console.error(e);
-    hide('load');
-    show('auth');
-  }
-
-  // Listen auth changes
-  State.sb.auth.onAuthStateChange(function(event, session){
-    console.log('[AUTH]', event);
-    if(event === 'SIGNED_OUT'){
-      location.reload();
-    } else if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user){
-      if(!State.user) enterApp(session.user);
-    }
-  });
-}
-
-async function enterApp(user){
-  State.user = user;
-
-  // Ambil / buat profile
-  try {
-    var r = await State.sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-    if(r.data){
-      State.profile = r.data;
-    } else {
-      var nm = (user.user_metadata && user.user_metadata.name) || user.email.split('@')[0];
-      await State.sb.from('profiles').insert({
-        id: user.id, name: nm, email: user.email,
-        avatar: avatar(nm), bio: 'Anggota HubKita'
-      });
-      var r2 = await State.sb.from('profiles').select('*').eq('id', user.id).single();
-      State.profile = r2.data;
-    }
-
-    // Set online
-    await State.sb.from('profiles').update({
-      status: 'online', last_seen: new Date().toISOString()
-    }).eq('id', user.id);
-  } catch(e){
-    console.error('Profile error:', e);
-  }
-
-  hide('load');
-  hide('auth');
-  show('app');
-  $('top-av').src = State.profile.avatar || avatar(State.profile.name);
-  $('p-av').src = State.profile.avatar || avatar(State.profile.name);
-  $('p-nm').textContent = State.profile.name;
-  $('p-em').textContent = State.profile.email;
-
-  await loadData();
-
-  // Subscribe realtime
-  subscribeRealtime();
-}
-
-async function loadData(){
-  try {
-    var r = await State.sb.from('profiles').select('*').order('name');
-    State.profiles = (r.data || []).filter(function(p){ return p.id !== State.user.id; });
-    await loadPreviews();
-    renderChats();
-  } catch(e){
-    console.error(e);
-    toast('Gagal load data: ' + e.message, 'err');
-  }
-}
-
-async function loadPreviews(){
-  State.previews = {};
-  for(var i=0;i<State.profiles.length;i++){
-    var p = State.profiles[i];
+  login: async function(e){
+    e.preventDefault();
+    var em = $('li-em').value.trim().toLowerCase();
+    var pw = $('li-pw').value;
+    var btn = $('b-login');
+    btn.disabled = true; btn.textContent = 'Masuk...';
     try {
-      var r = await State.sb.from('messages').select('*')
-        .or('and(sender_id.eq.'+State.user.id+',receiver_id.eq.'+p.id+'),and(sender_id.eq.'+p.id+',receiver_id.eq.'+State.user.id+')')
-        .order('created_at', {ascending:false}).limit(1);
-      if(r.data && r.data[0]) State.previews[p.id] = r.data[0];
-    } catch(e){}
-  }
-}
-
-// ════ RENDER CHAT LIST ════
-function renderChats(){
-  var q = ($('search').value || '').toLowerCase();
-  var list = $('chat-list');
-  var filtered = State.profiles.filter(function(p){
-    return p.name.toLowerCase().indexOf(q) !== -1 ||
-           (p.email||'').toLowerCase().indexOf(q) !== -1;
-  });
-
-  if(filtered.length === 0){
-    list.innerHTML = '<div class="empty">' +
-      '<div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>' +
-      '<div class="empty-t">Belum ada anggota lain</div>' +
-      '<div class="empty-s">Ajak temanmu daftar HubKita dengan link yang sama!</div>' +
-    '</div>';
-    return;
-  }
-
-  var html = '';
-  filtered.forEach(function(p){
-    var prev = State.previews[p.id];
-    var prevText = prev ? (prev.sender_id === State.user.id ? 'Anda: ' : '') + prev.content : 'Ketuk untuk mulai chat';
-    var prevTime = prev ? timeAgo(prev.created_at) : '';
-    html += '<div class="item" onclick="App.open(\'' + p.id + '\')">' +
-      '<img class="item-av" src="' + esc(p.avatar || avatar(p.name)) + '" onerror="this.src=\'' + avatar(p.name) + '\'">' +
-      '<div class="item-body">' +
-        '<div class="item-name">' + esc(p.name) + '</div>' +
-        '<div class="item-prev">' + esc(prevText) + '</div>' +
-      '</div>' +
-      '<div class="item-side"><div class="item-time">' + prevTime + '</div></div>' +
-    '</div>';
-  });
-  list.innerHTML = html;
-}
-
-// ════ CHAT ROOM ════
-async function loadMessages(){
-  var p = State.active;
-  var box = $('room-msgs');
-  box.innerHTML = '<div style="text-align:center;padding:20px;color:#8696a0;font-size:13px">Memuat...</div>';
-
-  try {
-    var r = await State.sb.from('messages').select('*')
-      .or('and(sender_id.eq.'+State.user.id+',receiver_id.eq.'+p.id+'),and(sender_id.eq.'+p.id+',receiver_id.eq.'+State.user.id+')')
-      .order('created_at', {ascending:true}).limit(300);
-
-    if(r.error){
-      box.innerHTML = '<div style="text-align:center;padding:20px;color:#f15c6d;font-size:13px">Error: ' + esc(r.error.message) + '</div>';
-      return;
+      var r = await sb.auth.signInWithPassword({email: em, password: pw});
+      if(r.error) throw r.error;
+      toast('Selamat datang!', 'ok');
+    } catch(err){
+      var msg = err.message || 'Gagal login';
+      if(msg.indexOf('Invalid') > -1) msg = 'Email atau password salah';
+      if(msg.indexOf('Email not confirmed') > -1) msg = 'Email belum diverifikasi. Cek inbox.';
+      if(msg.indexOf('rate') > -1) msg = 'Terlalu banyak percobaan. Tunggu sebentar.';
+      this.msg('m-login', msg, 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Masuk';
     }
+  },
 
-    if(!r.data || r.data.length === 0){
-      box.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#8696a0;font-size:13px">Belum ada pesan. Ketik "Halo!" untuk memulai.</div>';
+  register: async function(e){
+    e.preventDefault();
+    var nm = $('re-nm').value.trim();
+    var em = $('re-em').value.trim().toLowerCase();
+    var pw = $('re-pw').value;
+    var btn = $('b-reg');
+    if(nm.length < 2){ this.msg('m-reg', 'Nama minimal 2 karakter', 'err'); return; }
+    if(pw.length < 6){ this.msg('m-reg', 'Password minimal 6 karakter', 'err'); return; }
+    btn.disabled = true; btn.textContent = 'Membuat...';
+    try {
+      var r = await sb.auth.signUp({
+        email: em, password: pw,
+        options: {data: {name: nm}}
+      });
+      if(r.error) throw r.error;
+      if(r.data.user){
+        try {
+          await sb.from('profiles').upsert({
+            id: r.data.user.id, name: nm, email: em,
+            avatar: avatar(nm), bio: 'Anggota HubKita'
+          });
+        } catch(e){}
+        if(r.data.session){
+          toast('Akun dibuat!', 'ok');
+        } else {
+          this.msg('m-reg', 'Cek email untuk verifikasi, atau login langsung.', 'ok');
+        }
+      }
+    } catch(err){
+      var msg = err.message || 'Gagal daftar';
+      if(msg.indexOf('already') > -1) msg = 'Email sudah terdaftar, coba login';
+      if(msg.indexOf('rate') > -1) msg = 'Terlalu banyak percobaan. Tunggu 5 menit.';
+      this.msg('m-reg', msg, 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Buat Akun';
+    }
+  }
+};
+
+// ─── CHATS LIST ───
+var Chats = {
+  render: function(){
+    var q = ($('search').value || '').toLowerCase();
+    var list = $('chat-list');
+    var filtered = Profiles.filter(function(p){
+      return p.name.toLowerCase().indexOf(q) > -1 ||
+             (p.email || '').toLowerCase().indexOf(q) > -1;
+    });
+
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty">' +
+        '<div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>' +
+        '<div class="empty-t">Belum ada anggota lain</div>' +
+        '<div class="empty-s">Ajak temanmu buka link ini:<br><b style="color:#00a884">' + esc(location.hostname) + '</b><br>Daftar, lalu mulai chat!</div>' +
+      '</div>';
       return;
     }
 
     var html = '';
-    var lastDay = '';
-    r.data.forEach(function(m){
-      var day = new Date(m.created_at).toDateString();
-      if(day !== lastDay){
-        lastDay = day;
-        var today = new Date().toDateString();
-        var yest = new Date(Date.now() - 86400000).toDateString();
-        var lbl = day === today ? 'Hari ini' : day === yest ? 'Kemarin' : new Date(m.created_at).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        html += '<div class="day">' + lbl + '</div>';
+    filtered.forEach(function(p){
+      var prev = Previews[p.id];
+      var previewText, previewTime, previewCheck;
+      if(prev){
+        var isMe = prev.sender_id === User.id;
+        previewText = (isMe ? '' : esc(prev.content));
+        previewTime = timeAgo(prev.created_at);
+        previewCheck = isMe ? '<span class="ch-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/><polyline points="20 12 9 23 4 18" transform="translate(4 -6)"/></svg></span>' : '';
+      } else {
+        previewText = 'Ketuk untuk mulai chat';
+        previewTime = '';
+        previewCheck = '';
       }
-      html += renderMsg(m);
+      var unread = Unread[p.id] || 0;
+      var online = p.status === 'online';
+      html += '<div class="ch-item" onclick="Room.open(\'' + p.id + '\')">' +
+        '<div class="ch-av-wrap">' +
+          '<img class="ch-av" src="' + esc(p.avatar || avatar(p.name)) + '" onerror="this.src=\'' + avatar(p.name) + '\'">' +
+          '<div class="ch-dot ' + (online ? 'on' : 'off') + '"></div>' +
+        '</div>' +
+        '<div class="ch-body">' +
+          '<div class="ch-name">' + esc(p.name) + '</div>' +
+          '<div class="ch-prev">' + previewCheck + previewText + '</div>' +
+        '</div>' +
+        '<div class="ch-meta">' +
+          '<div class="ch-time">' + previewTime + '</div>' +
+          (unread > 0 ? '<div class="ch-badge">' + unread + '</div>' : '') +
+        '</div>' +
+      '</div>';
     });
-    box.innerHTML = html;
-    setTimeout(function(){ box.scrollTop = box.scrollHeight; }, 50);
-  } catch(e){
-    console.error(e);
-    box.innerHTML = '<div style="text-align:center;padding:20px;color:#f15c6d;font-size:13px">Error: ' + esc(e.message) + '</div>';
+    list.innerHTML = html;
   }
-}
+};
 
-function renderMsg(m){
-  var mine = m.sender_id === State.user.id;
-  var cls = mine ? 'me' : 'oth';
-  var time = timeNow();
-  try {
-    time = new Date(m.created_at).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-  } catch(e){}
-  var check = mine ? '<span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/><polyline points="24 12 13 23 8 18" transform="translate(-2 -6)"/></svg></span>' : '';
-  return '<div class="msg ' + cls + '">' +
-    '<div class="msg-txt">' + esc(m.content) + '</div>' +
-    '<div class="msg-meta">' + time + check + '</div>' +
-  '</div>';
-}
-
-function subscribeRealtime(){
-  if(State.channel){ try { State.sb.removeChannel(State.channel); } catch(e){} }
-  State.channel = State.sb.channel('rt_' + State.user.id)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, function(payload){
-      var m = payload.new;
-      if(!m) return;
-      // Kalau chat aktif dengan pengirim ini, tampilkan langsung
-      if(State.active && m.sender_id === State.active.id && m.receiver_id === State.user.id){
-        var box = $('room-msgs');
-        var empty = box.querySelector('div[style*="Belum ada pesan"]');
-        if(empty) box.innerHTML = '';
-        box.insertAdjacentHTML('beforeend', renderMsg(m));
-        setTimeout(function(){ box.scrollTop = box.scrollHeight; }, 30);
-      }
-      // Refresh preview
-      loadPreviews().then(function(){ if(State.active) {} else renderChats(); });
-    })
-    .subscribe();
-}
-
-// ════ SEND MESSAGE ════
-async function sendMessage(){
-  var inp = $('msg-input');
-  var content = inp.value.trim();
-  if(!content || !State.active) return;
-  inp.value = '';
-  inp.style.height = 'auto';
-
-  // Optimistic UI
-  var temp = {
-    sender_id: State.user.id,
-    receiver_id: State.active.id,
-    content: content,
-    created_at: new Date().toISOString()
-  };
-  var box = $('room-msgs');
-  var empty = box.querySelector('div[style*="Belum ada pesan"]');
-  if(empty) box.innerHTML = '';
-  box.insertAdjacentHTML('beforeend', renderMsg(temp));
-  box.scrollTop = box.scrollHeight;
-
-  try {
-    var r = await State.sb.from('messages').insert({
-      sender_id: State.user.id,
-      receiver_id: State.active.id,
-      sender_name: State.profile.name,
-      content: content
-    });
-    if(r.error) throw r.error;
-    // Update preview
-    loadPreviews().then(function(){ if(!State.active) renderChats(); });
-  } catch(e){
-    console.error(e);
-    toast('Gagal kirim: ' + e.message, 'err');
-  }
-}
-
-// ════ APP CONTROLLER ════
-var App = {
-  go: function(tab){
-    document.querySelectorAll('.tabview').forEach(function(el){ el.classList.remove('on'); });
-    document.querySelectorAll('.nav-t').forEach(function(el){ el.classList.toggle('on', el.dataset.go === tab); });
-    if(tab === 'chats'){ $('v-chats').classList.add('on'); $('top-title').textContent = 'HubKita'; }
-    else if(tab === 'profile'){ $('v-profile').classList.add('on'); $('top-title').textContent = 'Profil'; }
-  },
-
-  open: function(uid){
-    var p = State.profiles.find(function(x){ return x.id === uid; });
+// ─── ROOM ───
+var Room = {
+  open: async function(uid){
+    var p = Profiles.find(function(x){ return x.id === uid; });
     if(!p) return;
-    State.active = p;
-    $('r-av').src = p.avatar || avatar(p.name);
-    $('r-nm').textContent = p.name;
-    $('r-st').textContent = 'ketuk untuk info';
-    document.querySelectorAll('.tabview').forEach(function(el){ el.classList.remove('on'); });
-    $('v-room').classList.add('on');
-    $('top-title').textContent = p.name;
-    loadMessages();
+    Active = p;
+    Unread[p.id] = 0;
+    $('room-av').src = p.avatar || avatar(p.name);
+    $('room-av').onerror = function(){ this.src = avatar(p.name); };
+    $('room-nm').textContent = p.name;
+    $('room-st').innerHTML = (p.status === 'online' ? '<span class="online-dot"></span> Online' : 'Terakhir dilihat ' + timeAgo(p.last_seen || Date.now()));
+    document.querySelectorAll('.tv').forEach(function(el){ el.classList.remove('on'); });
+    $('tv-room').classList.add('on');
+    $('top-t').textContent = p.name;
+    await this.load();
+    setTimeout(function(){ $('room-in').focus(); }, 200);
+    Chats.render();
   },
 
-  back: function(){
-    State.active = null;
-    this.go('chats');
-    loadPreviews().then(renderChats);
+  close: function(){
+    Active = null;
+    App.go('chats');
   },
 
+  load: async function(){
+    var box = $('room-msgs');
+    box.innerHTML = '<div style="text-align:center;padding:20px;color:#8696a0;font-size:13px">Memuat...</div>';
+
+    try {
+      var r = await sb.from('messages').select('*')
+        .or('and(sender_id.eq.' + User.id + ',receiver_id.eq.' + Active.id + '),and(sender_id.eq.' + Active.id + ',receiver_id.eq.' + User.id + ')')
+        .order('created_at', {ascending: true}).limit(300);
+
+      if(r.error){
+        box.innerHTML = '<div style="text-align:center;padding:20px;color:#f15c6d;font-size:13px">Error: ' + esc(r.error.message) + '</div>';
+        return;
+      }
+
+      if(!r.data || r.data.length === 0){
+        box.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#8696a0;font-size:13.5px;line-height:1.6">Belum ada pesan.<br>Ketik "Halo!" untuk memulai percakapan.</div>';
+        return;
+      }
+
+      var html = '';
+      var lastDay = '';
+      r.data.forEach(function(m){
+        var day = new Date(m.created_at).toDateString();
+        if(day !== lastDay){
+          lastDay = day;
+          html += '<div class="msg-day">' + dayLabel(m.created_at) + '</div>';
+        }
+        html += Room.renderMsg(m);
+      });
+      box.innerHTML = html;
+      setTimeout(function(){ box.scrollTop = box.scrollHeight; }, 50);
+    } catch(e){
+      box.innerHTML = '<div style="text-align:center;padding:20px;color:#f15c6d;font-size:13px">Error: ' + esc(e.message) + '</div>';
+    }
+  },
+
+  renderMsg: function(m){
+    var mine = m.sender_id === User.id;
+    var cls = mine ? 'me' : 'oth';
+    var sender = '';
+    if(!mine){
+      var sp = Profiles.find(function(x){ return x.id === m.sender_id; });
+      // No sender name needed for 1-on-1, but keep for group later
+    }
+    var check = mine ? '<span class="msg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/><polyline points="20 12 9 23 4 18" transform="translate(4 -6)"/></svg></span>' : '';
+    return '<div class="msg ' + cls + '">' + sender + esc(m.content) +
+      '<div class="msg-time">' + timeMsg(m.created_at) + check + '</div>' +
+    '</div>';
+  },
+
+  send: async function(){
+    var inp = $('room-in');
+    var content = inp.value.trim();
+    if(!content || !Active) return;
+    if(content.length > 2000){ toast('Pesan terlalu panjang', 'err'); return; }
+    inp.value = '';
+    inp.style.height = 'auto';
+
+    var temp = {
+      id: 'temp_' + Date.now(),
+      sender_id: User.id,
+      receiver_id: Active.id,
+      content: content,
+      created_at: new Date().toISOString()
+    };
+    var box = $('room-msgs');
+    var empty = box.querySelector('div[style*="Belum ada pesan"]');
+    if(empty) box.innerHTML = '';
+    box.insertAdjacentHTML('beforeend', Room.renderMsg(temp));
+    box.scrollTop = box.scrollHeight;
+
+    try {
+      var r = await sb.from('messages').insert({
+        sender_id: User.id,
+        receiver_id: Active.id,
+        sender_name: Profile.name,
+        content: content
+      });
+      if(r.error) throw r.error;
+      loadPreviews().then(function(){ if(!Active) Chats.render(); });
+    } catch(e){
+      console.error(e);
+      toast('Gagal kirim: ' + e.message, 'err');
+    }
+  }
+};
+
+// ─── EMOJI ───
+var Emoji = {
+  list: '😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾 👍 👎 👌 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ ✋ 🤚 🖐 🖖 👋 🤝 🙏 💪 🦾 ❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 💕 💞 💓 💗 💖 💘 💝 💟 ✨ ⭐ 🌟 💫 🔥 💥 💢 💦 💨 🎉 🎊 🎈 🎁 🎂 🎀 🏆 🥇 🥈 🥉 ⚽ 🏀 🏈 ⚾ 🎾 🏐 🏉 🎱 🏓 🏸 🥊 🎯 🎮 🎲 🃏 🎭 🎨 🎬 🎤 🎧 🎵 🎶 🎼 🎹 🥁 🎸 🎺 🎻 📱 💻 ⌨️ 🖥 🖨 🖱 💾 💿 📀 🎥 📷 📸 📹 📼 🔍 🔎 🔮 💰 💵 💴 💶 💷 💸 💳 💎 ⚖️ 🔧 🔨 ⚒ 🛠 ⛏ 🔩 ⚙️ 🔗 ⛓ 🧰 🧲 🔫 💣 🧨 🔪 🗡 ⚔️ 🛡 🚬 ⚰️ ⚱️ 🏺 🔮 📿 🧿 💈 ⚗️ 🔭 🔬 🕳 💊 💉 🩸 🩹 🩺 🌡 🧬 🦠 🧫 🧪'.split(' '),
+
+  toggle: function(e){
+    e && e.stopPropagation();
+    var existing = $('emoji-picker').querySelector('.emoji-p');
+    if(existing){ existing.remove(); return; }
+    var html = '<div class="emoji-p" onclick="event.stopPropagation()">' +
+      '<input class="emoji-search" id="emoji-search" placeholder="Cari emoji..." oninput="Emoji.filter(this.value)">' +
+      '<div class="emoji-list" id="emoji-list"></div>' +
+    '</div>';
+    $('emoji-picker').innerHTML = html;
+    Emoji.render(Emoji.list);
+    setTimeout(function(){ var s = $('emoji-search'); if(s) s.focus(); }, 100);
+  },
+
+  render: function(list){
+    var grid = $('emoji-list');
+    if(!grid) return;
+    grid.innerHTML = list.map(function(e){
+      return '<button class="emoji-b" onclick="Emoji.pick(\'' + e + '\')">' + e + '</button>';
+    }).join('');
+  },
+
+  filter: function(q){
+    q = q.toLowerCase();
+    if(!q){ Emoji.render(Emoji.list); return; }
+    Emoji.render(Emoji.list.filter(function(e){ return e.indexOf(q) > -1; }));
+  },
+
+  pick: function(e){
+    var inp = $('room-in');
+    if(inp){
+      var start = inp.selectionStart;
+      inp.value = inp.value.slice(0, start) + e + inp.value.slice(inp.selectionEnd);
+      inp.focus();
+      inp.selectionStart = inp.selectionEnd = start + e.length;
+    }
+    var p = $('emoji-picker').querySelector('.emoji-p');
+    if(p) p.remove();
+  }
+};
+
+// Close emoji on outside click
+document.addEventListener('click', function(e){
+  var p = $('emoji-picker').querySelector('.emoji-p');
+  if(p && !p.contains(e.target) && !e.target.closest('button[onclick*="Emoji.toggle"]')){
+    p.remove();
+  }
+});
+
+// ─── PROFILE ───
+var Profile = {
   edit: function(){
-    var p = State.profile;
     var bg = document.createElement('div');
     bg.className = 'modal-bg';
-    bg.innerHTML = '<div class="modal">' +
+    bg.innerHTML = '<div class="modal" onclick="event.stopPropagation()">' +
       '<h3>Edit Profil</h3>' +
-      '<input id="ed-nm" value="' + esc(p.name) + '" placeholder="Nama">' +
-      '<input id="ed-bio" value="' + esc(p.bio || '') + '" placeholder="Bio">' +
+      '<div class="modal-av-preview"><img id="ed-av-prev" src="' + esc(Profile.avatar || avatar(Profile.name)) + '"></div>' +
+      '<input id="ed-nm" value="' + esc(Profile.name) + '" placeholder="Nama" maxlength="50">' +
+      '<input id="ed-bio" value="' + esc(Profile.bio || '') + '" placeholder="Bio / status" maxlength="100">' +
+      '<input id="ed-av" value="' + esc(Profile.avatar || '') + '" placeholder="URL Foto (opsional)">' +
       '<div class="modal-acts">' +
         '<button class="mbtn" data-c>Batal</button>' +
         '<button class="mbtn pri" data-s>Simpan</button>' +
       '</div>' +
     '</div>';
     document.body.appendChild(bg);
+
+    var avInput = bg.querySelector('#ed-av');
+    avInput.oninput = function(){
+      bg.querySelector('#ed-av-prev').src = avInput.value || avatar(bg.querySelector('#ed-nm').value);
+    };
+    bg.querySelector('#ed-nm').oninput = function(){
+      if(!avInput.value) bg.querySelector('#ed-av-prev').src = avatar(this.value);
+    };
+
     bg.querySelector('[data-c]').onclick = function(){ bg.remove(); };
     bg.querySelector('[data-s]').onclick = async function(){
       var nm = bg.querySelector('#ed-nm').value.trim();
       var bio = bg.querySelector('#ed-bio').value.trim();
+      var av = bg.querySelector('#ed-av').value.trim() || avatar(nm);
       if(nm.length < 2){ toast('Nama minimal 2 karakter', 'err'); return; }
-      var r = await State.sb.from('profiles').update({
-        name: nm, bio: bio, avatar: avatar(nm)
-      }).eq('id', State.user.id);
-      if(r.error){ toast('Gagal: ' + r.error.message, 'err'); return; }
-      bg.remove();
-      await State.sb.from('profiles').select('*').eq('id', State.user.id).single().then(function(res){
-        State.profile = res.data;
-        $('top-av').src = res.data.avatar;
-        $('p-av').src = res.data.avatar;
-        $('p-nm').textContent = res.data.name;
-      });
-      toast('Profil diperbarui', 'ok');
+      try {
+        var r = await sb.from('profiles').update({
+          name: nm, bio: bio, avatar: av
+        }).eq('id', User.id);
+        if(r.error) throw r.error;
+        Profile.name = nm;
+        Profile.bio = bio;
+        Profile.avatar = av;
+        bg.remove();
+        App.renderProfile();
+        toast('Profil diperbarui', 'ok');
+      } catch(e){
+        toast('Gagal: ' + e.message, 'err');
+      }
     };
-  },
-
-  about: function(){
-    var bg = document.createElement('div');
-    bg.className = 'modal-bg';
-    bg.innerHTML = '<div class="modal">' +
-      '<h3>Tentang HubKita</h3>' +
-      '<p>HubKita v9.5<br>Chat realtime dengan Supabase<br><br>' +
-      'Fitur:<br>• Chat realtime<br>• Auth aman<br>• Cloud sync<br>• Multi-device<br><br>' +
-      'Dibuat dengan HTML, CSS, JS, Supabase</p>' +
-      '<div class="modal-acts"><button class="mbtn pri" data-c>Tutup</button></div>' +
-    '</div>';
-    document.body.appendChild(bg);
-    bg.querySelector('[data-c]').onclick = function(){ bg.remove(); };
   },
 
   logout: function(){
     var bg = document.createElement('div');
     bg.className = 'modal-bg';
     bg.innerHTML = '<div class="modal">' +
-      '<h3>Keluar?</h3>' +
-      '<p>Anda akan logout dari akun ini.</p>' +
+      '<h3>Keluar dari HubKita?</h3>' +
+      '<p>Anda akan logout dari akun ini. Data tetap tersimpan di cloud.</p>' +
       '<div class="modal-acts">' +
         '<button class="mbtn" data-c>Batal</button>' +
         '<button class="mbtn dgr" data-o>Keluar</button>' +
@@ -728,100 +815,256 @@ var App = {
     bg.querySelector('[data-c]').onclick = function(){ bg.remove(); };
     bg.querySelector('[data-o]').onclick = async function(){
       bg.remove();
-      try { await State.sb.auth.signOut(); } catch(e){}
+      try {
+        await sb.from('profiles').update({status: 'offline', last_seen: new Date().toISOString()}).eq('id', User.id);
+        await sb.auth.signOut();
+      } catch(e){}
       location.reload();
     };
   }
 };
 
-// ════ EVENT BINDINGS ════
-$('f-login').addEventListener('submit', async function(e){
-  e.preventDefault();
-  var em = $('li-em').value.trim().toLowerCase();
-  var pw = $('li-pw').value;
-  var btn = $('b-login');
-  btn.disabled = true; btn.textContent = 'Masuk...';
-  try {
-    var r = await State.sb.auth.signInWithPassword({ email: em, password: pw });
-    if(r.error) throw r.error;
-    toast('Selamat datang!', 'ok');
-  } catch(err){
-    var msg = err.message || 'Gagal login';
-    if(msg.indexOf('Invalid') !== -1) msg = 'Email atau password salah';
-    authMsg('m-login', msg, 'err');
-    btn.disabled = false; btn.textContent = 'Masuk';
-  }
-});
-
-$('f-reg').addEventListener('submit', async function(e){
-  e.preventDefault();
-  var nm = $('re-nm').value.trim();
-  var em = $('re-em').value.trim().toLowerCase();
-  var pw = $('re-pw').value;
-  var btn = $('b-reg');
-  if(nm.length < 2){ authMsg('m-reg', 'Nama minimal 2 karakter', 'err'); return; }
-  if(pw.length < 6){ authMsg('m-reg', 'Password minimal 6 karakter', 'err'); return; }
-  btn.disabled = true; btn.textContent = 'Membuat akun...';
-  try {
-    var r = await State.sb.auth.signUp({
-      email: em, password: pw,
-      options: { data: { name: nm } }
+// ─── APP CONTROLLER ───
+var App = {
+  go: function(tab){
+    document.querySelectorAll('.tv').forEach(function(el){ el.classList.remove('on'); });
+    document.querySelectorAll('.bnav-btn').forEach(function(el){
+      el.classList.toggle('on', el.dataset.go === tab);
     });
-    if(r.error) throw r.error;
-
-    // Kalau session langsung ada (auto-confirm aktif), pakai itu
-    if(r.data.session && r.data.user){
-      // Insert profile (mungkin trigger sudah handle, tapi kita upsert biar pasti)
-      try {
-        await State.sb.from('profiles').upsert({
-          id: r.data.user.id, name: nm, email: em,
-          avatar: avatar(nm), bio: 'Anggota HubKita'
-        });
-      } catch(e){}
-      toast('Akun dibuat!', 'ok');
-      // onAuthStateChange akan handle
-    } else if(r.data.user){
-      // Butuh verifikasi email
-      authMsg('m-reg', 'Cek email untuk verifikasi. Atau minta admin matikan "Email Confirmation" di Supabase.', 'ok');
-      btn.disabled = false; btn.textContent = 'Buat Akun';
+    if(tab === 'chats'){
+      $('tv-chats').classList.add('on');
+      $('top-t').textContent = 'HubKita';
+      Chats.render();
+    } else if(tab === 'profile'){
+      $('tv-profile').classList.add('on');
+      $('top-t').textContent = 'Profil Saya';
     }
-  } catch(err){
-    var msg = err.message || 'Gagal daftar';
-    if(msg.indexOf('already') !== -1) msg = 'Email sudah terdaftar, coba login';
-    if(msg.indexOf('Password') !== -1) msg = 'Password minimal 6 karakter';
-    authMsg('m-reg', msg, 'err');
-    btn.disabled = false; btn.textContent = 'Buat Akun';
-  }
-});
+  },
 
-document.querySelectorAll('.nav-t').forEach(function(el){
-  el.addEventListener('click', function(){ App.go(el.dataset.go); });
-});
+  renderProfile: function(){
+    $('top-av').src = Profile.avatar || avatar(Profile.name);
+    $('pr-av').src = Profile.avatar || avatar(Profile.name);
+    $('pr-nm').textContent = Profile.name;
+    $('pr-em').textContent = Profile.email;
+    $('pr-bio').textContent = Profile.bio || 'Anggota HubKita';
+  },
 
-$('search').addEventListener('input', renderChats);
-$('btn-send').addEventListener('click', sendMessage);
-$('msg-input').addEventListener('keydown', function(e){
-  if(e.key === 'Enter' && !e.shiftKey){
-    e.preventDefault();
-    sendMessage();
+  showAbout: function(){
+    var bg = document.createElement('div');
+    bg.className = 'modal-bg';
+    bg.innerHTML = '<div class="modal">' +
+      '<h3>Tentang HubKita</h3>' +
+      '<p><b>HubKita v10.0</b><br>Chat real-time dengan Supabase<br><br>' +
+      'Fitur:<br>• Chat real-time<br>• Autentikasi aman<br>• Data di cloud<br>• Multi-device<br>• Status online<br>• Emoji<br><br>' +
+      'Dibuat dengan HTML, CSS, JS, dan Supabase</p>' +
+      '<div class="modal-acts"><button class="mbtn pri" data-c>Tutup</button></div>' +
+    '</div>';
+    document.body.appendChild(bg);
+    bg.querySelector('[data-c]').onclick = function(){ bg.remove(); };
+  },
+
+  share: function(){
+    var url = location.href;
+    if(navigator.share){
+      navigator.share({
+        title: 'HubKita',
+        text: 'Chat dengan saya di HubKita!',
+        url: url
+      }).catch(function(){});
+    } else {
+      if(navigator.clipboard){
+        navigator.clipboard.writeText(url).then(function(){
+          toast('Link disalin ke clipboard', 'ok');
+        });
+      } else {
+        prompt('Copy link ini:', url);
+      }
+    }
   }
-});
-$('msg-input').addEventListener('input', function(){
+};
+
+// ─── LOAD PROFILES ───
+async function loadProfiles(){
+  try {
+    var r = await sb.from('profiles').select('*').order('name');
+    Profiles = (r.data || []).filter(function(p){ return p.id !== User.id; });
+    await loadPreviews();
+    Chats.render();
+  } catch(e){
+    console.error(e);
+    toast('Gagal load: ' + e.message, 'err');
+  }
+}
+
+async function loadPreviews(){
+  Previews = {};
+  for(var i = 0; i < Profiles.length; i++){
+    var p = Profiles[i];
+    try {
+      var r = await sb.from('messages').select('*')
+        .or('and(sender_id.eq.' + User.id + ',receiver_id.eq.' + p.id + '),and(sender_id.eq.' + p.id + ',receiver_id.eq.' + User.id + ')')
+        .order('created_at', {ascending: false}).limit(1);
+      if(r.data && r.data[0]) Previews[p.id] = r.data[0];
+    } catch(e){}
+  }
+}
+
+// ─── REALTIME ───
+function subscribeRealtime(){
+  if(RealtimeCh){ try { sb.removeChannel(RealtimeCh); } catch(e){} }
+  RealtimeCh = sb.channel('rt_' + User.id)
+    .on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, function(payload){
+      var m = payload.new;
+      if(!m) return;
+      if(Active && m.sender_id === Active.id && m.receiver_id === User.id){
+        var box = $('room-msgs');
+        var empty = box.querySelector('div[style*="Belum ada pesan"]');
+        if(empty) box.innerHTML = '';
+        box.insertAdjacentHTML('beforeend', Room.renderMsg(m));
+        setTimeout(function(){ box.scrollTop = box.scrollHeight; }, 30);
+        Unread[Active.id] = 0;
+      } else if(m.receiver_id === User.id){
+        Unread[m.sender_id] = (Unread[m.sender_id] || 0) + 1;
+      }
+      loadPreviews().then(function(){ if(!Active) Chats.render(); });
+    })
+    .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'profiles'}, function(payload){
+      var p = payload.new;
+      if(!p) return;
+      var idx = Profiles.findIndex(function(x){ return x.id === p.id; });
+      if(idx > -1) Profiles[idx] = p;
+      if(Active && Active.id === p.id){
+        Active = p;
+        $('room-st').innerHTML = (p.status === 'online' ? '<span class="online-dot"></span> Online' : 'Terakhir dilihat ' + timeAgo(p.last_seen || Date.now()));
+      }
+      if(!Active) Chats.render();
+    })
+    .subscribe();
+}
+
+// ─── BOOT ───
+async function boot(){
+  lstatus('Menghubungkan ke server...');
+
+  if(!window.supabase){
+    showErr('Tidak bisa load Supabase. Cek internet.');
+    $('load').classList.add('out');
+    show('auth');
+    return;
+  }
+
+  try {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } catch(e){
+    showErr('Error: ' + e.message);
+    $('load').classList.add('out');
+    show('auth');
+    return;
+  }
+
+  // Timeout 6 detik
+  var timeout = setTimeout(function(){
+    $('load').classList.add('out');
+    show('auth');
+    console.warn('Boot timeout — showing auth');
+  }, 6000);
+
+  try {
+    lstatus('Memeriksa sesi...');
+    var res = await sb.auth.getSession();
+    clearTimeout(timeout);
+
+    if(res.data.session && res.data.session.user){
+      await enterApp(res.data.session.user);
+    } else {
+      $('load').classList.add('out');
+      show('auth');
+    }
+  } catch(e){
+    clearTimeout(timeout);
+    console.error(e);
+    $('load').classList.add('out');
+    show('auth');
+  }
+
+  // Auth state listener
+  sb.auth.onAuthStateChange(function(event, session){
+    console.log('[AUTH]', event);
+    if(event === 'SIGNED_IN' && session && session.user && !User){
+      enterApp(session.user);
+    } else if(event === 'SIGNED_OUT'){
+      User = null;
+      Profile = null;
+      $('app').classList.remove('on');
+      show('auth');
+    }
+  });
+}
+
+async function enterApp(u){
+  User = u;
+  lstatus('Memuat profil...');
+
+  try {
+    var r = await sb.from('profiles').select('*').eq('id', u.id).maybeSingle();
+    if(r.data){
+      Profile = r.data;
+    } else {
+      var nm = (u.user_metadata && u.user_metadata.name) || u.email.split('@')[0];
+      await sb.from('profiles').insert({
+        id: u.id, name: nm, email: u.email,
+        avatar: avatar(nm), bio: 'Anggota HubKita',
+        status: 'online', last_seen: new Date().toISOString()
+      });
+      var r2 = await sb.from('profiles').select('*').eq('id', u.id).single();
+      Profile = r2.data;
+    }
+    await sb.from('profiles').update({
+      status: 'online', last_seen: new Date().toISOString()
+    }).eq('id', u.id);
+    Profile.status = 'online';
+  } catch(e){
+    console.error('Profile error:', e);
+  }
+
+  $('load').classList.add('out');
+  hide('auth');
+  show('app');
+  $('app').classList.add('on');
+
+  App.renderProfile();
+  await loadProfiles();
+  subscribeRealtime();
+
+  // Track offline on unload
+  window.addEventListener('beforeunload', function(){
+    if(User && sb){
+      sb.from('profiles').update({status: 'offline', last_seen: new Date().toISOString()}).eq('id', User.id);
+    }
+  });
+
+  // Refresh profiles periodically
+  setInterval(function(){
+    if(!Active){
+      sb.from('profiles').select('*').then(function(r){
+        if(r.data){
+          Profiles = r.data.filter(function(p){ return p.id !== User.id; });
+          Chats.render();
+        }
+      });
+    }
+  }, 30000);
+}
+
+// Auto-grow textarea
+document.getElementById('room-in') && document.getElementById('room-in').addEventListener('input', function(){
   this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
 
-// Track offline
-window.addEventListener('beforeunload', function(){
-  if(State.user && State.sb){
-    State.sb.from('profiles').update({
-      status: 'offline', last_seen: new Date().toISOString()
-    }).eq('id', State.user.id);
-  }
-});
-
-// ════ START ════
+// Start
 boot();
+console.log('%c🚀 HubKita v10.0','background:linear-gradient(135deg,#00a884,#075e54);color:white;padding:10px 20px;border-radius:8px;font-weight:700;font-size:16px');
 </script>
 </body>
 </html>
